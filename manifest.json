@@ -2,12 +2,14 @@
   "manifest_version": 2,
   "name": "Chrome Tab Scheduler",
   "version": "0.1",
-  "content_scripts": [
-    {
-      "matches": [ 
-        "<all urls>" 
-      ],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "content_scripts": [ {
+      "matches": [ "<all_urls>" ],
       "js": ["jquery-2.2.1.min.js", "content.js"]
-    }
-  ]
+    } ],
+  "browser_action": {
+    "default_icon": "icon.png"
+  }
 }
