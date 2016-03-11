@@ -2,11 +2,22 @@
 
 chrome.browserAction.onClicked.addListener(function(tab){
   // Send a message to the active tab
+  
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
     console.log('testing')
-    console.log('these are your tabs',tabs[0])
+    // This queries your active tab so your tabs parameter is an array of just one tab
+    console.log('this is your active tab',tabs[0])
     var activeTab = tabs[0];
-    chrome.tabs.sendMessage(activeTab.id, {"message": "clicked_browser_action"});
+    console.log(chrome.tabs.sendMessage, 'This is the sendMessage thing')
+    /*
+      Sends a single message to the content script(s) in the specified tab, 
+      with an optional callback to run when a response is sent back. 
+      The runtime.onMessage event is fired in each content script
+       running in the specified tab for the current extension.
+    */
+    chrome.tabs.sendMessage(activeTab.id, {"message": "clicked_browser_action"}, function(response){
+      console.log('let us see if we got a response from content.js', response)
+    });
   });
 });
 
