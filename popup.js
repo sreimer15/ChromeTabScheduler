@@ -2,6 +2,9 @@ $(document).ready(function(){
   console.log('this is within the popup.js')
   // Defines what Number to append to name of input tag
   var currentNum = 1;
+  var activeTabsArray = [];
+  var listOfInputtedLinks = [];
+
 
   $("#addMoreButton").on('click', function(){
     currentNum++;
@@ -26,28 +29,37 @@ $(document).ready(function(){
 
   $("#linksForm").submit(function(event){
     
-    var formData = {};
-    var listOfLinks =[];
-    // Let's get formData from all Links including time
+    var formData = [];
     
+    // Let's get formData from all Links including time, into an array
+    
+    for (var i = 1; i <= currentNum; i++) {
+      newFormData = {'url': $('input[name=link' + i.toString() + ']').val(),
+                     'time': $('input[name=time' + i.toString() + ']').val() };
 
-    var formData = {
-      'url': $('input[name=link' + "1" +']').val(),
-      'time': $('input[name=time' + "1" +']').val()
-    }
+      formData.push(newFormData);
+    }  
+   
     
     var scheduleOpening = function(urlObject){
       console.log(urlObject);
       var currentUrl = urlObject.url
       var relevantTime = urlObject.time
 
-    setTimeout(function(){
-      chrome.tabs.create({ url : currentUrl})  
-    },relevantTime)
+      /* We need to set the active property to false, because once we switch tabs
+         The create function does not work anymore.
+      */ 
+      setTimeout(function(){
+        chrome.tabs.create({ url : currentUrl , active : false})  
+      },relevantTime)
 
     }
 
-   scheduleOpening(formData);
+    formData.forEach(function(dataPoint){
+      scheduleOpening(dataPoint);
+    });  
+
+   
 
     event.preventDefault();
   });
