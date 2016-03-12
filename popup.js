@@ -6,6 +6,32 @@ $(document).ready(function(){
   var listOfInputtedLinks = [];
 
 
+  var scheduleOpening = function(urlObject,windowId){
+    var currentUrl = urlObject.url
+    var relevantTime = urlObject.time
+
+    /* We need to set the active property to false, because once we switch tabs
+       The create function does not work anymore.
+    */ 
+
+    // if we didn't pass in a  window id then just pass in default
+    if (!windowId){
+      
+      setTimeout(function(){
+        chrome.tabs.create({ url : currentUrl , active : false})  
+      },relevantTime)  
+
+    } else {
+      setTimeout(function(){
+        chrome.tabs.create({ url : currentUrl , active : false, windowId: windowId})  
+      },relevantTime)  
+    }
+
+    
+
+  }
+
+  // Adds more input tags to add more links
   $("#addMoreButton").on('click', function(){
     currentNum++;
     console.log(currentNum)
@@ -27,6 +53,8 @@ $(document).ready(function(){
      
   });
 
+
+  // Submits our Form adding time delay to opening our tab+s Opens our 
   $("#linksForm").submit(function(event){
     
     var formData = [];
@@ -38,31 +66,46 @@ $(document).ready(function(){
                      'time': $('input[name=time' + i.toString() + ']').val() };
 
       formData.push(newFormData);
-    }  
-   
-    
-    var scheduleOpening = function(urlObject){
-      console.log(urlObject);
-      var currentUrl = urlObject.url
-      var relevantTime = urlObject.time
-
-      /* We need to set the active property to false, because once we switch tabs
-         The create function does not work anymore.
-      */ 
-      setTimeout(function(){
-        chrome.tabs.create({ url : currentUrl , active : false})  
-      },relevantTime)
-
     }
 
     formData.forEach(function(dataPoint){
       scheduleOpening(dataPoint);
-    });  
-
-   
-
+    });
     event.preventDefault();
   });
+
+  $('#getCurrentTabsButton').on('click', function(event){
+    chrome.tabs.query({currentWindow: true}, function(tabs){
+      console.log('these are your active tabs',tabs)
+      console.log('this is the url of the first tab you have', tabs[0].url)
+
+      tabs.forEach(function(tab){
+        var tabTime = tab.time || 3000;
+        var currentObj = {'url': tab.url, time: tabTime };
+        activeTabsArray.push(currentObj);
+      })
+
+      // Create a new window for our active tabs array
+
+      chrome.windows.create({focused : true}, function(currentWindow){
+        console.log('we made it within the window is',currentWindow);
+        console.log('we made it within the currentId of the window is',currentWindow.id);
+        var windowId = currentWindow.id;
+        activeTabsArray.forEach(function(dataPoint){
+          scheduleOpening(dataPoint,windowId);
+        });  
+          
+        
+        
+      });
+      
+
+    });
+
+
+    event.preventDefault();
+  })
+
 
 });
 
