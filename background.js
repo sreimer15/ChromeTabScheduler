@@ -34,6 +34,7 @@ Sends an arbitrary JSON payload to the current tab.
 
 
 chrome.runtime.onMessage.addListener(
+  console.log('this is a test for communication')
   function(request,sender,sendResponse){
     if(request.message === "open_new_tab") {
       chrome.tabs.create({"url": request.url});

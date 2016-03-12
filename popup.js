@@ -79,39 +79,48 @@ $(document).ready(function(){
   });
 
   $('#getCurrentTabsButton').on('click', function(event){
-    chrome.tabs.query({currentWindow: true}, function(tabs){
-      console.log('these are your active tabs',tabs)
-      console.log('this is the url of the first tab you have', tabs[0].url)
+    // get current window in order to close later
+    var currentWindowId;
+    
+    chrome.windows.getCurrent({},function(currentWindow){
+      console.log('within currentWindow function')
+      console.log(currentWindow.id)
+      currentWindowId = currentWindow.id
 
-      tabs.forEach(function(tab){
-        var tabTime = tab.time || 3000;
-        var tabCategory = $('input[name=activeTabCategory]').val() || 'uncategorized'
-        var currentObj = {'url': tab.url, time: tabTime, category: tabCategory };
-        
-        console.log(currentObj.category)
-        activeTabsArray.push(currentObj);
-      })
+      // get tabs in order to save them
+      chrome.tabs.query({currentWindow: true}, function(tabs){
 
-      // Create a new window for our active tabs array
+        tabs.forEach(function(tab){
+          var tabTime = tab.time || 3000;
+          var tabCategory = $('input[name=activeTabCategory]').val() || 'uncategorized'
+          var currentObj = {'url': tab.url, time: tabTime, category: tabCategory };
 
-      chrome.windows.create({focused : true}, function(currentWindow){
-        console.log('we made it within the window is',currentWindow);
-        console.log('we made it within the currentId of the window is',currentWindow.id);
-        var windowId = currentWindow.id;
-        activeTabsArray.forEach(function(dataPoint){
-          scheduleOpening(dataPoint,windowId);
-        });  
-          
-        
-        
+          console.log(currentObj.category)
+          activeTabsArray.push(currentObj);
+        })
+
+        // Create a new window for our active tabs array
+
+        chrome.windows.create({focused : true}, function(newWindow){
+          var newWindowId = newWindow.id;
+          activeTabsArray.forEach(function(dataPoint){
+            scheduleOpening(dataPoint,newWindowId);
+          });
+        });
       });
+      event.preventDefault();
+
       
+      // Close the window once we save all of them
+      // Current Problem when we close we lose data
+      // chrome.windows.remove(currentWindowId);
 
-    });
+    })
+    
 
 
-    event.preventDefault();
   })
+
 
 
 });
