@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Chrome Tab Scheduler Popup</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/css/materialize.min.css">
+    <script src="jquery-2.2.1.min.js"></script>
+    <script src="popup.js"></script>
+  </head>
+  <body>
+    <h1>Add a Link You want to be Reminded Of</h1>
+    <div class="row">
+       <form class="col s12" id="linksForm">
+        <div class="row">
+          <div class="input-field col s6">
+            <input placeholder="Input Link" id="first_link" name=firstLink></input>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn waves-effect waves-light" name="action" id="submitLinks">Submit
+          <i class="material-icons right"></i>
+        </button>
+
+       </form>
+     </div>
+  </body>
+</html>
