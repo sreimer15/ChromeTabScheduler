@@ -67,10 +67,14 @@ $(document).ready(function(){
 
       formData.push(newFormData);
     }
-
-    formData.forEach(function(dataPoint){
-      scheduleOpening(dataPoint);
-    });
+    // Creates a new window to open the tabs in later
+    chrome.windows.create({focused: false}, function(currentWindow){
+      var windowId = currentWindow.id
+      formData.forEach(function(dataPoint){
+        scheduleOpening(dataPoint,windowId);
+      });
+    }) 
+      
     event.preventDefault();
   });
 
@@ -81,7 +85,10 @@ $(document).ready(function(){
 
       tabs.forEach(function(tab){
         var tabTime = tab.time || 3000;
-        var currentObj = {'url': tab.url, time: tabTime };
+        var tabCategory = $('input[name=activeTabCategory]').val() || 'uncategorized'
+        var currentObj = {'url': tab.url, time: tabTime, category: tabCategory };
+        
+        console.log(currentObj.category)
         activeTabsArray.push(currentObj);
       })
 
