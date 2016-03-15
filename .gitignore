@@ -1,4 +1,11 @@
 # Jquery
 jquery-2.2.1.min.js
 
+#lodash
+lodash.min.js
+
+# node_modules
+node_modules/
+
+
 

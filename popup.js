@@ -110,7 +110,7 @@ $(document).ready(function(){
       });
       event.preventDefault();
 
-      
+
       // Close the window once we save all of them
       // Current Problem when we close we lose data
       // chrome.windows.remove(currentWindowId);
