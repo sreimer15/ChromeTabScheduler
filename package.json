@@ -23,6 +23,7 @@
     "body-parser": "^1.14.2",
     "express": "^4.13.3",
     "kerberos": "0.0.18",
+    "morgan": "^1.6.1",
     "mongoose": "^4.3.6",
     "cors": "^2.7.1",
     "nodemon": "^1.8.1"

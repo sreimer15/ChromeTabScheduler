@@ -5,6 +5,8 @@
   "permissions": [
     "activeTab",
     "tabs",
+    "identity",
+    "identity.email",
     "http://*/",
     "https://*/"
   ],

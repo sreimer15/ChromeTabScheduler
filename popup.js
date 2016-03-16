@@ -121,6 +121,20 @@ $(document).ready(function(){
 
   })
 
+  console.log('we made it')
+  testing = chrome.identity;
+  chrome.identity.getAuthToken({interactive: true}, function(token){
+    console.log(token, "this is the token")
+    return token
+  })
+  chrome.identity.getProfileUserInfo(function(userInfo){
+    console.log(userInfo,'This is the userInfo')
+    console.log(userInfo.email)
+    console.log(userInfo.id)
+  })
+
+  
+
 
 
 });
