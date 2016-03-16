@@ -122,16 +122,31 @@ $(document).ready(function(){
   })
 
   console.log('we made it')
-  testing = chrome.identity;
-  chrome.identity.getAuthToken({interactive: true}, function(token){
-    console.log(token, "this is the token")
-    return token
-  })
+  var testing = chrome.identity;
+  var currentIdentity;
+  var storageArea = chrome.storage.sync;
+
+  // If we want to use auth Tokens we need to register our app
+  // chrome.identity.getAuthToken({interactive: true}, function(token){
+  //   console.log(token, "this is the token")
+  //   return token
+  // })
   chrome.identity.getProfileUserInfo(function(userInfo){
     console.log(userInfo,'This is the userInfo')
     console.log(userInfo.email)
     console.log(userInfo.id)
+    currentIdentity = userInfo.id
+    storageArea.set({'identity': currentIdentity});
   })
+  // Add to Timed Tabs
+
+  
+  // This should get fromStorageArea
+  storageArea.get('identity', function(items){
+    console.log('these are the items',items)
+  })
+
+  // Add to Category Tabs
 
   
 

@@ -4,6 +4,7 @@
   "version": "0.1",
   "permissions": [
     "activeTab",
+    "storage",
     "tabs",
     "identity",
     "identity.email",
