@@ -4,31 +4,47 @@ $(document).ready(function(){
   var currentNum = 1;
   var activeTabsArray = [];
   var listOfInputtedLinks = [];
+  var storageArea = chrome.storage.sync;
+
+  var testIfNewUser = function(){
+    var currentIdentity;
+    console.log(testingPromise,'This is the promise')
+    chrome.identity.getProfileUserInfo(function(userInfo){
+      currentIdentity = userInfo.id;
+      storageArea.get(currentIdentity, function(items){
+
+      })
+    });
+    
+  };
+
+
+  var existsInDatabase = function(){
+    return storageArea.get(function(items){
+      return items;
+    });
+  }
+  
+
 
 
   var scheduleOpening = function(urlObject,windowId){
     var currentUrl = urlObject.url
     var relevantTime = urlObject.time
-
     /* We need to set the active property to false, because once we switch tabs
        The create function does not work anymore.
     */ 
 
     // if we didn't pass in a  window id then just pass in default
     if (!windowId){
-      
       setTimeout(function(){
         chrome.tabs.create({ url : currentUrl , active : false})  
       },relevantTime)  
-
     } else {
       setTimeout(function(){
         chrome.tabs.create({ url : currentUrl , active : false, windowId: windowId})  
       },relevantTime)  
     }
-
-    
-
   }
 
   // Adds more input tags to add more links
@@ -38,19 +54,17 @@ $(document).ready(function(){
     var linkInput = [ "<input placeholder='Input Link'",
                        "name=link" + currentNum.toString(),
                        "</input>"
-                     ]
-  var timeInput = [
+                    ]
+    var timeInput = [
                   '<input placeholder="How many seconds from now?"',
                   'name=time' + currentNum.toString(),
                   'type="number"></input>'
-                  ]
+                    ]
+    linkInput = linkInput.join(' ')
+    timeInput = timeInput.join(' ')
 
-  linkInput = linkInput.join(' ')
-  timeInput = timeInput.join(' ')
-
-  $("#addMoreSection").append(linkInput)
-  $("#addMoreSection").append(timeInput)
-     
+    $("#addMoreSection").append(linkInput)
+    $("#addMoreSection").append(timeInput)       
   });
 
 
@@ -116,27 +130,24 @@ $(document).ready(function(){
       // chrome.windows.remove(currentWindowId);
 
     })
-    
+  });
 
-
-  })
-
-  console.log('we made it')
-  var testing = chrome.identity;
-  var currentIdentity;
-  var storageArea = chrome.storage.sync;
+  var linkObject = {'categories': [], 'timedLinks': activeTabsArray }
 
   // If we want to use auth Tokens we need to register our app
   // chrome.identity.getAuthToken({interactive: true}, function(token){
   //   console.log(token, "this is the token")
   //   return token
   // })
+
+
+
   chrome.identity.getProfileUserInfo(function(userInfo){
     console.log(userInfo,'This is the userInfo')
     console.log(userInfo.email)
     console.log(userInfo.id)
     currentIdentity = userInfo.id
-    storageArea.set({'identity': currentIdentity});
+    storageArea.set({currentIdentity: linkObject });
   })
   // Add to Timed Tabs
 
