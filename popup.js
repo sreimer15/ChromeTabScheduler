@@ -8,24 +8,15 @@ $(document).ready(function(){
 
   var testIfNewUser = function(){
     var currentIdentity;
-    console.log(testingPromise,'This is the promise')
     chrome.identity.getProfileUserInfo(function(userInfo){
       currentIdentity = userInfo.id;
       storageArea.get(currentIdentity, function(items){
-
+        if (!items.keys) {
+          storageArea.set({currentIdentity: linkObject });
+        }
       })
     });
-    
   };
-
-
-  var existsInDatabase = function(){
-    return storageArea.get(function(items){
-      return items;
-    });
-  }
-  
-
 
 
   var scheduleOpening = function(urlObject,windowId){
@@ -77,10 +68,11 @@ $(document).ready(function(){
     
     for (var i = 1; i <= currentNum; i++) {
       newFormData = {'url': $('input[name=link' + i.toString() + ']').val(),
-                     'time': $('input[name=time' + i.toString() + ']').val() };
+                     'time': $('input[name=time' + i.toString() + ']').val() * 1000 * 60 };
 
       formData.push(newFormData);
     }
+    // Our scheduling is now in minutes.
     // Creates a new window to open the tabs in later
     chrome.windows.create({focused: false}, function(currentWindow){
       var windowId = currentWindow.id
@@ -147,7 +139,6 @@ $(document).ready(function(){
     console.log(userInfo.email)
     console.log(userInfo.id)
     currentIdentity = userInfo.id
-    storageArea.set({currentIdentity: linkObject });
   })
   // Add to Timed Tabs
 
