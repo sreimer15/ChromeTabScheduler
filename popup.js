@@ -5,6 +5,11 @@ $(document).ready(function(){
   var activeTabsArray = [];
   var listOfInputtedLinks = [];
   var storageArea = chrome.storage.sync;
+  var timeObject = {
+                    'minutes': 1000 * 60,
+                    'hours': 1000 * 60 * 60,
+                    'days': 1000 * 60 * 60 * 24
+                   }
 
   var testIfNewUser = function(){
     var currentIdentity;
@@ -41,7 +46,6 @@ $(document).ready(function(){
   // Adds more input tags to add more links
   $("#addMoreButton").on('click', function(){
     currentNum++;
-    console.log(currentNum)
     var linkInput = [ "<input placeholder='Input Link'",
                        "name=link" + currentNum.toString(),
                        "</input>"
@@ -53,10 +57,10 @@ $(document).ready(function(){
                     ]
 
     var timeSpanInput = [
-                        '<div class="row" id="timeSpanCategory' + currentNum.toString() + ' data-timeSpanCategory' + currentNum.toString() +  '="placeholder">',
-                            ' <a class="waves-effect waves-light btn col s4">Minutes</a> ',
-                            '<a class="waves-effect waves-light btn col s4">Hours</a>',
-                            '<a class="waves-effect waves-light btn col s4">Days</a>',
+                        '<div class="row" name="timespancategory' + currentNum.toString() + '" data-timespancategory="minutes">',
+                            '<a class="waves-effect waves-light btn col s4 timeSpanChanger" data-indexnumber=' + currentNum.toString() + '>Minutes</a>',
+                            '<a class="waves-effect waves-light btn col s4 timeSpanChanger" data-indexnumber=' + currentNum.toString() + '>Hours</a>',
+                            '<a class="waves-effect waves-light btn col s4 timeSpanChanger" data-indexnumber=' + currentNum.toString() + '>Days</a>',
                         '</div>'
                         ]
 
@@ -70,6 +74,17 @@ $(document).ready(function(){
     $("#addMoreSection").append(timeSpanInput)       
   });
 
+  $(document).on('click', '.timeSpanChanger', function(event){
+    // Get the data point
+    var timeSpanSelector = $(this).text().toLowerCase();
+    // Find the exact link to change
+    var dataIndexNumber = $(this).data('indexnumber');
+    // Update link's time category
+    $('div[name=timespancategory' + dataIndexNumber + ']' ).data('timespancategory', timeSpanSelector) 
+    
+    
+    event.preventDefault();
+  })
 
   // Submits our Form adding time delay to opening our tab+s Opens our 
   $("#linksForm").submit(function(event){
@@ -79,9 +94,10 @@ $(document).ready(function(){
     // Let's get formData from all Links including time, into an array
     
     for (var i = 1; i <= currentNum; i++) {
+      timeFlag = $('div[name=timespancategory' + i.toString() + ']' ).data('timespancategory');
+      console.log(timeFlag)
       newFormData = {'url': $('input[name=link' + i.toString() + ']').val(),
-                     'time': $('input[name=time' + i.toString() + ']').val() };
-
+                     'time': $('input[name=time' + i.toString() + ']').val() * timeObject[timeFlag] };
       formData.push(newFormData);
     }
     // Our scheduling is now in minutes.
