@@ -51,11 +51,23 @@ $(document).ready(function(){
                   'name=time' + currentNum.toString(),
                   'type="number"></input>'
                     ]
+
+    var timeSpanInput = [
+                        '<div class="row" id="timeSpanCategory' + currentNum.toString() + ' data-timeSpanCategory' + currentNum.toString() +  '="placeholder">',
+                            ' <a class="waves-effect waves-light btn col s4">Minutes</a> ',
+                            '<a class="waves-effect waves-light btn col s4">Hours</a>',
+                            '<a class="waves-effect waves-light btn col s4">Days</a>',
+                        '</div>'
+                        ]
+
+
     linkInput = linkInput.join(' ')
     timeInput = timeInput.join(' ')
+    timeSpanInput = timeSpanInput.join(' ')
 
     $("#addMoreSection").append(linkInput)
-    $("#addMoreSection").append(timeInput)       
+    $("#addMoreSection").append(timeInput)
+    $("#addMoreSection").append(timeSpanInput)       
   });
 
 
@@ -68,7 +80,7 @@ $(document).ready(function(){
     
     for (var i = 1; i <= currentNum; i++) {
       newFormData = {'url': $('input[name=link' + i.toString() + ']').val(),
-                     'time': $('input[name=time' + i.toString() + ']').val() * 1000 * 60 };
+                     'time': $('input[name=time' + i.toString() + ']').val() };
 
       formData.push(newFormData);
     }
