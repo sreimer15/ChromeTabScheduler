@@ -32,15 +32,14 @@ Sends an arbitrary JSON payload to the current tab.
 
 // This will eventually be the user inputted tab based on our date.
 
+var storageArea = chrome.storage.sync;
 
 chrome.runtime.onMessage.addListener(
   function(request,sender,sendResponse){
-    if(request.message === "open_new_tab") {
-      activeTabsArray.forEach(function(dataPoint){
-        scheduleOpening(dataPoint,newWindowId);
-      });
+    if(request.message === "new_user"){
+      console.log(sender)   
+      var masterObject = {"linkQueue": [] };
+      storageArea.set({request.currentIdentity: masterObject });
     }
   }
-
 );
-

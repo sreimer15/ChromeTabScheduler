@@ -2,7 +2,6 @@ $(document).ready(function(){
   console.log('this is within the popup.js')
   // Defines what Number to append to name of input tag
   var currentNum = 1;
-  var activeTabsArray = [];
   var listOfInputtedLinks = [];
   var storageArea = chrome.storage.sync;
   var timeObject = {
@@ -13,11 +12,12 @@ $(document).ready(function(){
 
   var testIfNewUser = function(){
     var currentIdentity;
+
     chrome.identity.getProfileUserInfo(function(userInfo){
       currentIdentity = userInfo.id;
       storageArea.get(currentIdentity, function(items){
         if (!items.keys) {
-          storageArea.set({currentIdentity: linkObject });
+          chrome.runtime.sendMessage({"message": "new_user", "currentIdentity": currentIdentity });
         }
       })
     });
@@ -39,8 +39,16 @@ $(document).ready(function(){
     } else {
       setTimeout(function(){
         chrome.tabs.create({ url : currentUrl , active : false, windowId: windowId})  
-      },relevantTime)  
+      },relevantTime)
     }
+  }
+  // Should take timing and open at a certain point in time.
+  var handleTiming = function(timing,url){
+    var now = Date.now();
+    // Now is simply a number so we can just add our timing in miliseconds
+    var secondsToWait = now + timing;
+    // Send a message to popup.js to handle the timing, if at some point in time this time = now
+      // fire event
   }
 
   // Adds more input tags to add more links
@@ -79,20 +87,16 @@ $(document).ready(function(){
     var timeSpanSelector = $(this).text().toLowerCase();
     // Find the exact link to change
     var dataIndexNumber = $(this).data('indexnumber');
+    console.log(dataIndexNumber,'This is from ActiveTabs Category');
     // Update link's time category
-    $('div[name=timespancategory' + dataIndexNumber + ']' ).data('timespancategory', timeSpanSelector) 
-    
-    
+    $('div[name=timespancategory' + dataIndexNumber + ']' ).data('timespancategory', timeSpanSelector)
     event.preventDefault();
   })
 
   // Submits our Form adding time delay to opening our tab+s Opens our 
   $("#linksForm").submit(function(event){
-    
     var formData = [];
-    
     // Let's get formData from all Links including time, into an array
-    
     for (var i = 1; i <= currentNum; i++) {
       timeFlag = $('div[name=timespancategory' + i.toString() + ']' ).data('timespancategory');
       console.log(timeFlag)
@@ -119,7 +123,8 @@ $(document).ready(function(){
     chrome.windows.getCurrent({},function(currentWindow){
       console.log('within currentWindow function')
       console.log(currentWindow.id)
-      currentWindowId = currentWindow.id
+      var activeTabsArray = [];
+      currentWindowId = currentWindow.id;
 
       // get tabs in order to save them
       chrome.tabs.query({currentWindow: true}, function(tabs){
@@ -128,8 +133,6 @@ $(document).ready(function(){
           var tabTime = tab.time || 3000;
           var tabCategory = $('input[name=activeTabCategory]').val() || 'uncategorized'
           var currentObj = {'url': tab.url, time: tabTime, category: tabCategory };
-
-          console.log(currentObj.category)
           activeTabsArray.push(currentObj);
         })
 
