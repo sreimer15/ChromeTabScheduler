@@ -44,7 +44,7 @@ $(document).ready(function(){
     }
   }
   // Should take timing and open at a certain point in time.
-  var handleTiming = function(timing,url){
+  var handleTiming = function(timing){
     var now = Date.now();
     // Now is simply a number so we can just add our timing in miliseconds
     var secondsToWait = now + timing;
@@ -135,18 +135,18 @@ $(document).ready(function(){
       chrome.tabs.query({currentWindow: true}, function(tabs){
         var timeFlag = timeFlag = $('div[name=timespancategoryActiveTabs]' ).data('timespancategory');
         var tabTime = $('input[name=timespancategoryActiveTabs]').val() * timeObject[timeFlag] || 3000;
+        var whenToOpen = handleTiming(tabTime);
 
         tabs.forEach(function(tab){
           var tabCategory = $('input[name=activeTabCategory]').val() || 'uncategorized'
-          var currentObj = {'url': tab.url, time: tabTime, category: tabCategory };
+          var currentObj = {'url': tab.url, time: whenToOpen, category: tabCategory };
           activeTabsArray.push(currentObj);
-
         })        
         // {time: time, url: url,  category: category}
           // add an auto fill with categories that already exist
 
         // Send message to our background
-        chrome.runtime.sendMessage({"message": "new_tabs", activeTabsArray: activeTabsArray, "timing": tabTime});
+        chrome.runtime.sendMessage({"message": "new_tabs", activeTabsArray: activeTabsArray, "timing": whenToOpen});
 
 
 
@@ -180,7 +180,7 @@ $(document).ready(function(){
     var activeTabsArray = [{'time': 3000, 'url': 'http://www.reddit.com', 'category': 'distraction'},
                            {'time': 3000, 'url': 'http://www.reddit.com', 'category': 'uncategorized'}
                           ]
-    chrome.runtime.sendMessage({"message": "new_tabs", activeTabsArray: activeTabsArray });
+    chrome.runtime.sendMessage({"message": "new_tabs", activeTabsArray: activeTabsArray, "timing": 3000 });
     console.log('testButton works')
     event.preventDefault();
   })
