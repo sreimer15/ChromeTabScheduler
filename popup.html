@@ -35,22 +35,25 @@
      <div class="row">
      <div class="col s6">
        <input placeholder="Add a Category" name="activeTabCategory"></input>
+       <input placeholder="When to Open?" name=activeTabsTime type="number"></input>
+       <div class="row" name="timespancategoryActiveTabs" data-timespancategory="minutes">
+           <a class="waves-effect waves-light btn col s4 timeSpanChanger" data-indexnumber="ActiveTabs">Minutes</a>
+           <a class="waves-effect waves-light btn col s4 timeSpanChanger" data-indexnumber="ActiveTabs">Hours</a>
+           <a class="waves-effect waves-light btn col s4 timeSpanChanger" data-indexnumber="ActiveTabs">Days</a>
+       </div>
+
      </div>
       <div class="col s6">
         <button class="btn waves-effect waves-light" id="getCurrentTabsButton">Save and Close Tabs</button>
-        
-        <div class="row" name="timespancategoryActiveTabs" data-timespancategory="minutes">
-            <a class="waves-effect waves-light btn col s4 timeSpanChanger" data-indexnumber="ActiveTabs">Minutes</a>
-            <a class="waves-effect waves-light btn col s4 timeSpanChanger" data-indexnumber="ActiveTabs">Hours</a>
-            <a class="waves-effect waves-light btn col s4 timeSpanChanger" data-indexnumber="ActiveTabs">Days</a>
-        </div>
-
       </div>
      </div>
      <div class="row">
        <div class="offset-s6 col s6">
          <button class="btn waves-effect waves-light" id="saveCurrentTabButton">Save Current Tab</button>
        </div>
+     </div>
+     <div class="row">
+       <button class="btn waves-effect waves-light" id="testButton">Test NewTabs Message</button>
      </div>
      
      <script src="jquery-2.2.1.min.js"></script>

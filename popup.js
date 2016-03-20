@@ -9,10 +9,9 @@ $(document).ready(function(){
                     'hours': 1000 * 60 * 60,
                     'days': 1000 * 60 * 60 * 24
                    }
+  var currentIdentity;
 
   var testIfNewUser = function(){
-    var currentIdentity;
-
     chrome.identity.getProfileUserInfo(function(userInfo){
       currentIdentity = userInfo.id;
       storageArea.get(currentIdentity, function(items){
@@ -22,6 +21,8 @@ $(document).ready(function(){
       })
     });
   };
+  
+  testIfNewUser();
 
 
   var scheduleOpening = function(urlObject,windowId){
@@ -128,13 +129,23 @@ $(document).ready(function(){
 
       // get tabs in order to save them
       chrome.tabs.query({currentWindow: true}, function(tabs){
-
         tabs.forEach(function(tab){
-          var tabTime = tab.time || 3000;
+          var tabTime = $('input[name=timespancategoryActiveTabs]').val() || 3000;
+          console.log(tabTime)
           var tabCategory = $('input[name=activeTabCategory]').val() || 'uncategorized'
           var currentObj = {'url': tab.url, time: tabTime, category: tabCategory };
+          console.log(currentIdentity,'This should have scope')
+
           activeTabsArray.push(currentObj);
-        })
+
+        })        
+        // {time: time, url: url,  category: category}
+          // add an auto fill with categories that already exist
+
+        // Send message to our background
+        chrome.runtime.sendMessage({"message": "new_tabs", activeTabsArray: activeTabsArray});
+
+
 
         // Create a new window for our active tabs array
 
@@ -155,7 +166,7 @@ $(document).ready(function(){
     })
   });
 
-  var linkObject = {'categories': [], 'timedLinks': activeTabsArray }
+  // var linkObject = {'categories': [], 'timedLinks': activeTabsArray }
 
   // If we want to use auth Tokens we need to register our app
   // chrome.identity.getAuthToken({interactive: true}, function(token){
@@ -163,7 +174,14 @@ $(document).ready(function(){
   //   return token
   // })
 
-
+  $('#testButton').on('click',function(event){
+    var activeTabsArray = [{'time': 3000, 'url': 'http://www.reddit.com', 'category': 'distraction'},
+                           {'time': 3000, 'url': 'http://www.reddit.com', 'category': 'uncategorized'}
+                          ]
+    chrome.runtime.sendMessage({"message": "new_tabs", activeTabsArray: activeTabsArray });
+    console.log('testButton works')
+    event.preventDefault();
+  })
 
   chrome.identity.getProfileUserInfo(function(userInfo){
     console.log(userInfo,'This is the userInfo')
