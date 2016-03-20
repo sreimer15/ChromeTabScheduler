@@ -99,20 +99,24 @@ $(document).ready(function(){
     var formData = [];
     // Let's get formData from all Links including time, into an array
     for (var i = 1; i <= currentNum; i++) {
-      timeFlag = $('div[name=timespancategory' + i.toString() + ']' ).data('timespancategory');
-      console.log(timeFlag)
-      newFormData = {'url': $('input[name=link' + i.toString() + ']').val(),
-                     'time': $('input[name=time' + i.toString() + ']').val() * timeObject[timeFlag] };
+      // Get the appropriate data from our input tags
+      var timeFlag         = $('div[name=timespancategory' + i.toString() + ']' ).data('timespancategory'),
+          currentCategory  = $('input[name=inputtedTabCategory' + i.toString() + ']').val() || "uncategorized",
+          currentTime      = $('input[name=time' + i.toString() + ']').val() * timeObject[timeFlag],
+          currentUrl       = $('input[name=link' + i.toString() + ']').val();
+
+      var newFormData = {'url': currentUrl, 'time': currentTime, 'category': currentCategory };
       formData.push(newFormData);
     }
-    // Our scheduling is now in minutes.
-    // Creates a new window to open the tabs in later
-    chrome.windows.create({focused: false}, function(currentWindow){
-      var windowId = currentWindow.id
-      formData.forEach(function(dataPoint){
-        scheduleOpening(dataPoint,windowId);
-      });
-    }) 
+
+    chrome.runtime.sendMessage({"message": "inputted_tabs", activeTabsArray: formData});
+
+    // chrome.windows.create({focused: false}, function(currentWindow){
+    //   var windowId = currentWindow.id
+    //   formData.forEach(function(dataPoint){
+    //     scheduleOpening(dataPoint,windowId);
+    //   });
+    // }) 
       
     event.preventDefault();
   });
@@ -129,13 +133,12 @@ $(document).ready(function(){
 
       // get tabs in order to save them
       chrome.tabs.query({currentWindow: true}, function(tabs){
+        var timeFlag = timeFlag = $('div[name=timespancategoryActiveTabs]' ).data('timespancategory');
+        var tabTime = $('input[name=timespancategoryActiveTabs]').val() * timeObject[timeFlag] || 3000;
+
         tabs.forEach(function(tab){
-          var tabTime = $('input[name=timespancategoryActiveTabs]').val() || 3000;
-          console.log(tabTime)
           var tabCategory = $('input[name=activeTabCategory]').val() || 'uncategorized'
           var currentObj = {'url': tab.url, time: tabTime, category: tabCategory };
-          console.log(currentIdentity,'This should have scope')
-
           activeTabsArray.push(currentObj);
 
         })        
@@ -143,7 +146,7 @@ $(document).ready(function(){
           // add an auto fill with categories that already exist
 
         // Send message to our background
-        chrome.runtime.sendMessage({"message": "new_tabs", activeTabsArray: activeTabsArray});
+        chrome.runtime.sendMessage({"message": "new_tabs", activeTabsArray: activeTabsArray, "timing": tabTime});
 
 
 
@@ -162,7 +165,6 @@ $(document).ready(function(){
       // Close the window once we save all of them
       // Current Problem when we close we lose data
       // chrome.windows.remove(currentWindowId);
-
     })
   });
 
