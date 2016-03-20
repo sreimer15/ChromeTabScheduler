@@ -1,5 +1,18 @@
 var storageArea = chrome.storage.sync;
 
+var handleOpening = function(urlObject,windowId){
+  var currentUrl = urlObject.url
+  /* We need to set the active property to false, because once we switch tabs
+     The create function does not work anymore.
+  */ 
+  // if we didn't pass in a  window id then just pass in default
+  if (!windowId){
+      chrome.tabs.create({ url : currentUrl , active : false})
+  } else {
+      chrome.tabs.create({ url : currentUrl , active : false, windowId: windowId})
+  }
+};
+
 var handleCategories = function(categories,urlObject){
   var possibleNewCategory = urlObject.category;
   var url = urlObject.url;
@@ -34,6 +47,9 @@ var updateActiveTabs = function(toAddToQueue,timing) {
       currentCategories = handleCategories(currentCategories,urlObject);
     })
     var newQueue = handleTiming(previousQueue,toAddToQueue,timing);
+    console.log(newQueue,'This is when we udpateOur Active Tabs')  
+    chrome.alarms.create("activeTabsScheduledOpening" + timing.toString(), {"when": timing})
+
     var newCategories = currentCategories;
     storageArea.set({ "activeLinkQueue": newQueue });
     storageArea.set({ "categories": newCategories });
@@ -50,6 +66,7 @@ var updateInputtedTabs = function(toAddToQueue){
       currentCategories = handleCategories(currentCategories,urlObject);
       var currentTime = urlObject.time;
       previousQueue = handleTiming(previousQueue,urlObject,currentTime);
+      chrome.alarms.create("inputtedTabsScheduledOpening",{when: currentTime})
     });
     var newCategories = currentCategories;
     var newQueue = previousQueue;
@@ -89,6 +106,60 @@ chrome.runtime.onMessage.addListener(
       var toAddToQueue = request.activeTabsArray;
       updateInputtedTabs(toAddToQueue);
     }
-
   }
 );
+
+//  now we have to set up an async process to listen to the time. When the time = the time in one of those areas open
+  // If the trigger is in active Tab open a new window open all of those tabs in that window
+  // If the trigger is a passiveTab we need to do more work
+    // First check if there is a passiveTab window
+      // If there is check if the tab lenght is less than 20 
+        // if it is add the triggered tab to that window
+      // Else create new tab set as new PassiveTab.
+    // Create Passive Tab Window add triggered tab to that window
+
+chrome.alarms.onAlarm.addListener(function(alarm){
+  console.log(alarm,"Please have data that I want")
+  var triggerTime = alarm.scheduledTime,
+      alarmName = alarm.name,
+      activeTabsStringLength = "activeTabsScheduledOpening".length,
+      inputtedTabsStringLength = "inputtedTabsScheduledOpening".length,
+      activeTabAlarm = alarmName.substring(0,activeTabsStringLength) == "activeTabsScheduledOpening",
+      inputtedTabAlarm = alarmName.substring(0,inputtedTabsStringLength) == "inputtedTabsScheduledOpening";
+
+  if(activeTabAlarm){
+    console.log(triggerTime)
+    storageArea.get("activeLinkQueue", function(activeLinkQueue){
+      console.log(activeLinkQueue)
+      activeLinkQueue = activeLinkQueue.activeLinkQueue;
+      console.log(activeLinkQueue.triggerTime)
+      var linksToOpen = activeLinkQueue[triggerTime];
+        linksToOpen.forEach(function(arrayOfTabs){
+          // This is an array filled with tabs, if we do have two arrays for a
+          // given time we categorize them differently, open them in different windows
+          chrome.windows.create({focused : true}, function(newWindow){
+            var newWindowId = newWindow.id;
+            // tabObject looks like this = {time: time, url: url,  category: category}
+            arrayOfTabs.forEach(function(tabObject){
+              handleOpening(tabObject,newWindowId)
+            });
+          });
+        });
+        // Delete our alarm and update our ActiveLinkQueue
+        console.log(alarmName)
+        chrome.alarms.clear(alarmName, function(wasCleared){
+          // remove from ActiveLinkQueue
+          var updatedQueue = activeLinkQueue;
+          console.log(updatedQueue,"Prior to Deletion")
+          delete updatedQueue[triggerTime.toString()]
+          console.log(updatedQueue,"Post Deletion")
+          storageArea.set({ "activeLinkQueue": updatedQueue })          
+        })
+    })  
+  }
+  else if(inputtedTabAlarm){
+
+  } else {
+    alert("This is an error")  
+  }
+})

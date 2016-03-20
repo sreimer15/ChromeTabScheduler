@@ -9,7 +9,8 @@
     "identity",
     "identity.email",
     "http://*/",
-    "https://*/"
+    "https://*/",
+    "alarms"
   ],
 
   "background": {

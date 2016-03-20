@@ -102,7 +102,7 @@ $(document).ready(function(){
       // Get the appropriate data from our input tags
       var timeFlag         = $('div[name=timespancategory' + i.toString() + ']' ).data('timespancategory'),
           currentCategory  = $('input[name=inputtedTabCategory' + i.toString() + ']').val() || "uncategorized",
-          currentTime      = $('input[name=time' + i.toString() + ']').val() * timeObject[timeFlag],
+          currentTime      = $('input[name=time' + i.toString() + ']').val() * timeObject[timeFlag] + Date.now(),
           currentUrl       = $('input[name=link' + i.toString() + ']').val();
 
       var newFormData = {'url': currentUrl, 'time': currentTime, 'category': currentCategory };
@@ -134,38 +134,30 @@ $(document).ready(function(){
       // get tabs in order to save them
       chrome.tabs.query({currentWindow: true}, function(tabs){
         var timeFlag = timeFlag = $('div[name=timespancategoryActiveTabs]' ).data('timespancategory');
-        var tabTime = $('input[name=timespancategoryActiveTabs]').val() * timeObject[timeFlag] || 3000;
-        var whenToOpen = handleTiming(tabTime);
+        var tabTime = $('input[name=activeTabsTime]').val() * timeObject[timeFlag] + Date.now() || 3000;
+        console.log(tabTime)
 
         tabs.forEach(function(tab){
           var tabCategory = $('input[name=activeTabCategory]').val() || 'uncategorized'
-          var currentObj = {'url': tab.url, time: whenToOpen, category: tabCategory };
+          var currentObj = {'url': tab.url, time: tabTime, category: tabCategory };
           activeTabsArray.push(currentObj);
         })        
         // {time: time, url: url,  category: category}
           // add an auto fill with categories that already exist
 
         // Send message to our background
-        chrome.runtime.sendMessage({"message": "new_tabs", activeTabsArray: activeTabsArray, "timing": whenToOpen});
-
-
+        console.log(activeTabsArray)
+        console.log(tabTime)
+        chrome.runtime.sendMessage({"message": "new_tabs", activeTabsArray: activeTabsArray, "timing": tabTime});
 
         // Create a new window for our active tabs array
-
-        chrome.windows.create({focused : true}, function(newWindow){
-          var newWindowId = newWindow.id;
-          activeTabsArray.forEach(function(dataPoint){
-            scheduleOpening(dataPoint,newWindowId);
-          });
-        });
-      });
-      event.preventDefault();
-
-
       // Close the window once we save all of them
       // Current Problem when we close we lose data
-      // chrome.windows.remove(currentWindowId);
-    })
+      chrome.windows.remove(currentWindowId);
+      
+      })
+    });
+    event.preventDefault();
   });
 
   // var linkObject = {'categories': [], 'timedLinks': activeTabsArray }
@@ -177,10 +169,10 @@ $(document).ready(function(){
   // })
 
   $('#testButton').on('click',function(event){
-    var activeTabsArray = [{'time': 3000, 'url': 'http://www.reddit.com', 'category': 'distraction'},
-                           {'time': 3000, 'url': 'http://www.reddit.com', 'category': 'uncategorized'}
+    var activeTabsArray = [{'time': Date.now() + 3000, 'url': 'http://www.reddit.com', 'category': 'distraction'},
+                           {'time': Date.now() + 3000, 'url': 'http://www.reddit.com', 'category': 'uncategorized'}
                           ]
-    chrome.runtime.sendMessage({"message": "new_tabs", activeTabsArray: activeTabsArray, "timing": 3000 });
+    chrome.runtime.sendMessage({"message": "new_tabs", activeTabsArray: activeTabsArray, "timing": Date.now() + 3000 });
     console.log('testButton works')
     event.preventDefault();
   })
