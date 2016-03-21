@@ -1,4 +1,5 @@
 var storageArea = chrome.storage.sync;
+var inputtedTabsThreshold = 20;
 
 var handleOpening = function(urlObject,windowId){
   var currentUrl = urlObject.url
@@ -76,6 +77,37 @@ var updateInputtedTabs = function(toAddToQueue){
   });
 };
 
+var openActiveLinkTabs = function(activeLinkQueue,triggerTime){
+  
+  storageArea.get("activeLinkQueue", function(activeLinkQueue){
+    console.log(activeLinkQueue)
+    activeLinkQueue = activeLinkQueue.activeLinkQueue;
+    console.log(activeLinkQueue.triggerTime)
+    var linksToOpen = activeLinkQueue[triggerTime];
+      linksToOpen.forEach(function(arrayOfTabs){
+        // This is an array filled with tabs, if we do have two arrays for a
+        // given time we categorize them differently, open them in different windows
+        chrome.windows.create({focused : true}, function(newWindow){
+          var newWindowId = newWindow.id;
+          // tabObject looks like this = {time: time, url: url,  category: category}
+          arrayOfTabs.forEach(function(tabObject){
+            handleOpening(tabObject,newWindowId)
+          });
+        });
+      });
+      // Delete our alarm and update our ActiveLinkQueue
+      console.log(alarmName)
+      chrome.alarms.clear(alarmName, function(wasCleared){
+        // remove from ActiveLinkQueue
+        var updatedQueue = activeLinkQueue;
+        console.log(updatedQueue,"Prior to Deletion")
+        delete updatedQueue[triggerTime.toString()]
+        console.log(updatedQueue,"Post Deletion")
+        storageArea.set({ "activeLinkQueue": updatedQueue })          
+      })
+  })
+}
+
 // For the Individual Tabs, they will just share a windowId although they have different times.
 
 chrome.runtime.onMessage.addListener(
@@ -85,7 +117,8 @@ chrome.runtime.onMessage.addListener(
       console.log(sender)
       var currentIdentity = request.currentIdentity
       storageArea.set({"activeLinkQueue": {}, "categories": { "uncategorized": [] },
-                       "currentIdentity": currentIdentity, "inputtedLinkQueue": {} } );
+                       "currentIdentity": currentIdentity, "inputtedLinkQueue": {} },
+                       "inputtedTabWindow": undefined );
     }
     // We want to associate by the message not time, the message defines what window they exist in
       // Let's have an object with times as keys and an array as the value
@@ -111,12 +144,6 @@ chrome.runtime.onMessage.addListener(
 
 //  now we have to set up an async process to listen to the time. When the time = the time in one of those areas open
   // If the trigger is in active Tab open a new window open all of those tabs in that window
-  // If the trigger is a passiveTab we need to do more work
-    // First check if there is a passiveTab window
-      // If there is check if the tab lenght is less than 20 
-        // if it is add the triggered tab to that window
-      // Else create new tab set as new PassiveTab.
-    // Create Passive Tab Window add triggered tab to that window
 
 chrome.alarms.onAlarm.addListener(function(alarm){
   console.log(alarm,"Please have data that I want")
@@ -129,36 +156,60 @@ chrome.alarms.onAlarm.addListener(function(alarm){
 
   if(activeTabAlarm){
     console.log(triggerTime)
-    storageArea.get("activeLinkQueue", function(activeLinkQueue){
-      console.log(activeLinkQueue)
-      activeLinkQueue = activeLinkQueue.activeLinkQueue;
-      console.log(activeLinkQueue.triggerTime)
-      var linksToOpen = activeLinkQueue[triggerTime];
-        linksToOpen.forEach(function(arrayOfTabs){
-          // This is an array filled with tabs, if we do have two arrays for a
-          // given time we categorize them differently, open them in different windows
-          chrome.windows.create({focused : true}, function(newWindow){
-            var newWindowId = newWindow.id;
-            // tabObject looks like this = {time: time, url: url,  category: category}
+    openActiveLinkTabs(activeLinkQueue,triggerTime)
+  }
+  else if(inputtedTabAlarm){
+          // if it is add the triggered tab to that window
+        // Else create new tab set as new PassiveTab.
+      // Create Passive Tab Window add triggered tab to that window
+    storageArea.get(["inputtedLinkQueue","inputtedTabWindow"],function(items){
+      console.log(items,"inputtedTabAlarm situation")
+      var windowId = items.inputtedTabWindow;
+      var previousInputtedLinkQueue = items.inputtedLinkQueue;
+      var linksToOpen = previousInputtedLinkQueue[triggerTime];
+      // First check if there is a passiveTab window
+      if(windowId){
+        // If there is check if the tab lenght is less than inputtedTabsThreshold
+        chrome.windows.get(windowId,{populate: true},function(windowObj){
+          console.log(windowObj);
+          var oldWindowId = windowObj.id;
+          var numberOfTabs = windowObj.tabs.length;
+          if (numberOfTabs >= inputtedTabsThreshold ){
+            // Create a new Window and Open our tabs there
+            chrome.windows.create(function(newWindowObj){
+              var newWindowId = newWindowObj.id
+              linksToOpen.forEach(function(arrayOfTabs){
+                arrayOfTabs.forEach(function(tabObject){
+                  // tabObject looks like this = {time: time, url: url,  category: category}
+                  handleOpening(tabObject,newWindowId)
+                });
+              });
+              storageArea.set({"inputtedTabWindow": newWindowId })
+            });
+          }
+          else {
+            // Different behavior to open the inputted Tabs
+            linksToOpen.forEach(function(arrayOfTabs){
+              arrayOfTabs.forEach(function(tabObject){
+                handleOpening(tabObject,oldWindowId)
+              });
+            });
+          }
+        })
+      } else{
+        // There is no WindowId make a new one
+        chrome.windows.create(function(newWindowObj){
+          var newWindowId = newWindowObj.id
+          linksToOpen.forEach(function(arrayOfTabs){
             arrayOfTabs.forEach(function(tabObject){
+              // tabObject looks like this = {time: time, url: url,  category: category}
               handleOpening(tabObject,newWindowId)
             });
           });
+          storageArea.set({"inputtedTabWindow": newWindowId })
         });
-        // Delete our alarm and update our ActiveLinkQueue
-        console.log(alarmName)
-        chrome.alarms.clear(alarmName, function(wasCleared){
-          // remove from ActiveLinkQueue
-          var updatedQueue = activeLinkQueue;
-          console.log(updatedQueue,"Prior to Deletion")
-          delete updatedQueue[triggerTime.toString()]
-          console.log(updatedQueue,"Post Deletion")
-          storageArea.set({ "activeLinkQueue": updatedQueue })          
-        })
-    })  
-  }
-  else if(inputtedTabAlarm){
-
+      }
+    })
   } else {
     alert("This is an error")  
   }

@@ -43,14 +43,6 @@ $(document).ready(function(){
       },relevantTime)
     }
   }
-  // Should take timing and open at a certain point in time.
-  var handleTiming = function(timing){
-    var now = Date.now();
-    // Now is simply a number so we can just add our timing in miliseconds
-    var secondsToWait = now + timing;
-    // Send a message to popup.js to handle the timing, if at some point in time this time = now
-      // fire event
-  }
 
   // Adds more input tags to add more links
   $("#addMoreButton").on('click', function(){
@@ -64,6 +56,7 @@ $(document).ready(function(){
                   'name=time' + currentNum.toString(),
                   'type="number"></input>'
                     ]
+    
 
     var timeSpanInput = [
                         '<div class="row" name="timespancategory' + currentNum.toString() + '" data-timespancategory="minutes">',
@@ -110,13 +103,6 @@ $(document).ready(function(){
     }
 
     chrome.runtime.sendMessage({"message": "inputted_tabs", activeTabsArray: formData});
-
-    // chrome.windows.create({focused: false}, function(currentWindow){
-    //   var windowId = currentWindow.id
-    //   formData.forEach(function(dataPoint){
-    //     scheduleOpening(dataPoint,windowId);
-    //   });
-    // }) 
       
     event.preventDefault();
   });
@@ -154,7 +140,7 @@ $(document).ready(function(){
       // Close the window once we save all of them
       // Current Problem when we close we lose data
       chrome.windows.remove(currentWindowId);
-      
+
       })
     });
     event.preventDefault();
