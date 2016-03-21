@@ -25,6 +25,19 @@ $(document).ready(function(){
   testIfNewUser();
 
 
+  var getTitleFromUrl = function(currentUrl,cb){
+    
+    $.ajax({
+          url: "http://textance.herokuapp.com/title/" + currentUrl,
+          complete: function(data) {
+            var title = data.responseText;
+            cb(title);
+          }
+    });
+
+
+  }
+
   var scheduleOpening = function(urlObject,windowId){
     var currentUrl = urlObject.url
     var relevantTime = urlObject.time
@@ -105,10 +118,17 @@ $(document).ready(function(){
           currentTime      = $('input[name=time' + i.toString() + ']').val() * timeObject[timeFlag] + Date.now(),
           currentUrl       = $('input[name=link' + i.toString() + ']').val();
 
-      var newFormData = {'url': currentUrl, 'time': currentTime, 'category': currentCategory };
-      formData.push(newFormData);
+      var urlToGetTitle = currentUrl.replace(/.*?:\/\//g, "");
+      console.log(urlToGetTitle);
+      getTitleFromUrl(urlToGetTitle, function(title){
+        console.log(title,'let us see if we actually got the title')
+        var newFormData = {'url': currentUrl, 'time': currentTime, 'category': currentCategory, 'title': title };
+        console.log(newFormData,"Do we still have the right thing?")
+        formData.push(newFormData);
+      })
     }
-    console.log('we are about to send the message')
+    // chrome.runtime.sendMessage is an async process so our data is correct even though scoping
+    // Would imply that formData wouldn't have meaning yet
     chrome.runtime.sendMessage({"message": "inputted_tabs", activeTabsArray: formData});
       
     event.preventDefault();
@@ -131,8 +151,9 @@ $(document).ready(function(){
         console.log(tabTime)
 
         tabs.forEach(function(tab){
-          var tabCategory = $('input[name=activeTabCategory]').val() || 'uncategorized'
-          var currentObj = {'url': tab.url, time: tabTime, category: tabCategory };
+          var tabCategory = $('input[name=activeTabCategory]').val() || 'uncategorized';
+          console.log(tab.title)
+          var currentObj = {'url': tab.url, time: tabTime, category: tabCategory, 'title': tab.title };
           activeTabsArray.push(currentObj);
         })        
         // {time: time, url: url,  category: category}

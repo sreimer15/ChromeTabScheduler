@@ -17,8 +17,9 @@ var handleOpening = function(urlObject,windowId){
 var handleCategories = function(categories,urlObject){
   var possibleNewCategory = urlObject.category;
   var url = urlObject.url;
-  var title;
-  var categoryObject = {"url": url, "read": false}
+
+  var categoryObject = {"url": url, "read": false, "title": urlObject.title}
+  
   if(categories[possibleNewCategory]){
     categories[possibleNewCategory].push(categoryObject)
   } else {

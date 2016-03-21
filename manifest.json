@@ -8,6 +8,7 @@
     "tabs",
     "identity",
     "identity.email",
+    "http://textance.herokuapp.com/title/",
     "http://*/",
     "https://*/",
     "alarms"
