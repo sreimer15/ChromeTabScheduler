@@ -170,6 +170,16 @@ $(document).ready(function(){
     event.preventDefault();
   })
 
+  $("#categoriesViewButton").on('click',function(event){
+    console.log("This is the category View button")
+    categoriesPage = chrome.extension.getURL("categories.html")
+    console.log(categoriesPage)
+    chrome.tabs.create({'url': categoriesPage},function(tab){
+      console.log(tab,'The tab is open')
+    })
+    event.preventDefault();
+  })
+
   chrome.identity.getProfileUserInfo(function(userInfo){
     console.log(userInfo,'This is the userInfo')
     console.log(userInfo.email)

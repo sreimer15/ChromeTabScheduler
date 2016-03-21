@@ -17,6 +17,7 @@ var handleOpening = function(urlObject,windowId){
 var handleCategories = function(categories,urlObject){
   var possibleNewCategory = urlObject.category;
   var url = urlObject.url;
+  var title;
   var categoryObject = {"url": url, "read": false}
   if(categories[possibleNewCategory]){
     categories[possibleNewCategory].push(categoryObject)
@@ -53,6 +54,7 @@ var updateActiveTabs = function(toAddToQueue,timing) {
 
     var newCategories = currentCategories;
     storageArea.set({ "activeLinkQueue": newQueue });
+    console.log(newCategories,"Let's see if our updateActiveTabs works for categories")
     storageArea.set({ "categories": newCategories });
   });
 };
@@ -136,7 +138,7 @@ chrome.runtime.onMessage.addListener(
       // Inputted tabs are unordered, since they all want ot be opened at seperate times.
       // Since we haven't grouped them, tehn let's just add htem to a new windowId
       // If a windowId already exists add to that one until we get to 20
-      console.log("WE GOT A message to inputted tabs")
+      console.log("WE GOT A message to inputted tab")
       var toAddToQueue = request.activeTabsArray;
       updateInputtedTabs(toAddToQueue);
     }
