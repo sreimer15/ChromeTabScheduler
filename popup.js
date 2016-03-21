@@ -52,11 +52,15 @@ $(document).ready(function(){
                        "</input>"
                     ]
     var timeInput = [
-                  '<input placeholder="How many seconds from now?"',
+                  '<input placeholder="When to Open? (Buttons Change Time Unit)"',
                   'name=time' + currentNum.toString(),
                   'type="number"></input>'
                     ]
-    
+
+    var categoryInput = [
+                        '<input placeholder="Add a Category" ',
+                        'name="inputtedTabCategory' + currentNum.toString() + '"></input>'
+                        ]
 
     var timeSpanInput = [
                         '<div class="row" name="timespancategory' + currentNum.toString() + '" data-timespancategory="minutes">',
@@ -69,10 +73,13 @@ $(document).ready(function(){
 
     linkInput = linkInput.join(' ')
     timeInput = timeInput.join(' ')
+    categoryInput = categoryInput.join(' ')
     timeSpanInput = timeSpanInput.join(' ')
+
 
     $("#addMoreSection").append(linkInput)
     $("#addMoreSection").append(timeInput)
+    $("#addMoreSection").append(categoryInput)
     $("#addMoreSection").append(timeSpanInput)       
   });
 
@@ -101,7 +108,7 @@ $(document).ready(function(){
       var newFormData = {'url': currentUrl, 'time': currentTime, 'category': currentCategory };
       formData.push(newFormData);
     }
-
+    console.log('we are about to send the message')
     chrome.runtime.sendMessage({"message": "inputted_tabs", activeTabsArray: formData});
       
     event.preventDefault();

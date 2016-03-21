@@ -117,8 +117,8 @@ chrome.runtime.onMessage.addListener(
       console.log(sender)
       var currentIdentity = request.currentIdentity
       storageArea.set({"activeLinkQueue": {}, "categories": { "uncategorized": [] },
-                       "currentIdentity": currentIdentity, "inputtedLinkQueue": {} },
-                       "inputtedTabWindow": undefined );
+                       "currentIdentity": currentIdentity, "inputtedLinkQueue": {},
+                       "inputtedTabWindow": undefined });
     }
     // We want to associate by the message not time, the message defines what window they exist in
       // Let's have an object with times as keys and an array as the value
@@ -136,6 +136,7 @@ chrome.runtime.onMessage.addListener(
       // Inputted tabs are unordered, since they all want ot be opened at seperate times.
       // Since we haven't grouped them, tehn let's just add htem to a new windowId
       // If a windowId already exists add to that one until we get to 20
+      console.log("WE GOT A message to inputted tabs")
       var toAddToQueue = request.activeTabsArray;
       updateInputtedTabs(toAddToQueue);
     }
@@ -176,23 +177,21 @@ chrome.alarms.onAlarm.addListener(function(alarm){
           var numberOfTabs = windowObj.tabs.length;
           if (numberOfTabs >= inputtedTabsThreshold ){
             // Create a new Window and Open our tabs there
+            console.log("We are over our threshold somehow")
             chrome.windows.create(function(newWindowObj){
               var newWindowId = newWindowObj.id
-              linksToOpen.forEach(function(arrayOfTabs){
-                arrayOfTabs.forEach(function(tabObject){
-                  // tabObject looks like this = {time: time, url: url,  category: category}
-                  handleOpening(tabObject,newWindowId)
-                });
+              linksToOpen.forEach(function(tabObject){
+                // tabObject looks like this = {time: time, url: url,  category: category}
+                handleOpening(tabObject,newWindowId)
               });
               storageArea.set({"inputtedTabWindow": newWindowId })
             });
           }
           else {
             // Different behavior to open the inputted Tabs
-            linksToOpen.forEach(function(arrayOfTabs){
-              arrayOfTabs.forEach(function(tabObject){
-                handleOpening(tabObject,oldWindowId)
-              });
+            console.log(linksToOpen,'These are the linksToOpen')
+            linksToOpen.forEach(function(tabObject){
+              handleOpening(tabObject,oldWindowId)
             });
           }
         })
@@ -200,11 +199,9 @@ chrome.alarms.onAlarm.addListener(function(alarm){
         // There is no WindowId make a new one
         chrome.windows.create(function(newWindowObj){
           var newWindowId = newWindowObj.id
-          linksToOpen.forEach(function(arrayOfTabs){
-            arrayOfTabs.forEach(function(tabObject){
-              // tabObject looks like this = {time: time, url: url,  category: category}
-              handleOpening(tabObject,newWindowId)
-            });
+          linksToOpen.forEach(function(tabObject){
+            // tabObject looks like this = {time: time, url: url,  category: category}
+            handleOpening(tabObject,newWindowId)
           });
           storageArea.set({"inputtedTabWindow": newWindowId })
         });
