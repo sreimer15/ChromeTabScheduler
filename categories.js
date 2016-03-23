@@ -22,6 +22,8 @@ $(document).ready(function(){
   storageArea.get(null,function(items){
     console.log(items,"These are the items")
     userCategoriesObj = items.categories;
+    // Add to Dom
+    addCategorySection(userCategoriesObj);
   })
-  // nameCategory1
+  
 });
