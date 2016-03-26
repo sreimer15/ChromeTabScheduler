@@ -19,7 +19,7 @@ var handleCategories = function(categories,urlObject){
   var url = urlObject.url;
 
   var categoryObject = {"url": url, "read": false, "title": urlObject.title}
-  
+
   if(categories[possibleNewCategory]){
     categories[possibleNewCategory].push(categoryObject)
   } else {
@@ -28,7 +28,10 @@ var handleCategories = function(categories,urlObject){
   return categories
 }
 
-var handleTiming = function(previousQueue, newSetOfTabs, timing){
+function handleTiming(previousQueue, newSetOfTabs, timing){
+  // Previous Queue is an object with times as keys
+  // We pass in our timing as a key, if doesn't exist add to the object
+  // We want to return a new queue
   timing = timing.toString();
   if(previousQueue[timing]){
     previousQueue[timing].push(newSetOfTabs);
@@ -80,7 +83,7 @@ var updateInputtedTabs = function(toAddToQueue){
   });
 };
 
-var openActiveLinkTabs = function(activeLinkQueue,triggerTime){
+var openActiveLinkTabs = function(triggerTime,alarmName){
   
   storageArea.get("activeLinkQueue", function(activeLinkQueue){
     console.log(activeLinkQueue)
@@ -160,7 +163,7 @@ chrome.alarms.onAlarm.addListener(function(alarm){
 
   if(activeTabAlarm){
     console.log(triggerTime)
-    openActiveLinkTabs(activeLinkQueue,triggerTime)
+    openActiveLinkTabs(triggerTime,alarmName)
   }
   else if(inputtedTabAlarm){
           // if it is add the triggered tab to that window
