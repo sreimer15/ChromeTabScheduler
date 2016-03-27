@@ -7,7 +7,7 @@ describe('handleTiming tests', function(){
   var newSetOfTabs = [{'url':'http://www.reddit.com','title':'topKek'},{
     'url':'http://www.google.com','title':'topLel'
   }]
-  console.log(handleTiming)
+  console.log(handleOpening)
   it("should always return an object", function(){
     expect(handleTiming(previousQueue,newSetOfTabs,timing)).to.be.an('object')
   });

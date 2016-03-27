@@ -9,7 +9,8 @@ node_modules/
 
 #mocha
 mocha.js
-test/mocha.css
+test/mocha.css/
+
 #chai
 chai.js
 
