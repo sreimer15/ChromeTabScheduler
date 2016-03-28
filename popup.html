@@ -59,11 +59,35 @@
      <div class="row">
       <button class="btn waves-effect waves-light" id="categoriesViewButton">Manage Categories</button>
      </div>
+
      
+       
+     <!-- This triggers the modal on submit and on closing tabs? -->
+
+     <!-- Modal Trigger -->
+     <a class="waves-effect waves-light btn modal-trigger" href="#modal1">Modal</a>
+
+     <!-- Modal Structure -->
+     <div id="modal1" class="modal bottom-sheet" style="overflow-y: hidden;">
+       <div class="modal-content">
+       <h5>Set up Periodic Alarms?</h5>
+       </div>
+       <div class="modal-footer">
+        <div class="row">
+           <button class=" modal-action modal-close waves-effect waves-green btn-flat col s6 modalButton" data-interval="daily">Every Day at the same time</button>
+           <button class=" modal-action modal-close waves-effect waves-green btn-flat col s6 modalButton" data-interval="weekly">Every Week at the same time</button>
+           <button class=" modal-action modal-close waves-effect waves-green btn-flat col s6 modalButton" data-interval="dailynoweekend">Every Day at the same time except Sat and Sun</button>
+           <button class="modal-action modal-close waves-effect waves-green btn-flat col s6 modalButton" data-interval="none">One Time Alarm</button>
+         </div>
+       </div>
+     </div>
+             
      <script src="jquery-2.2.1.min.js"></script>
+     <script src="materialize.min.js"></script>
      <script src="bluebird.min.js"></script>
      <script src="mocha.js"></script>
      <script src="chai.js"></script>
      <script src="popup.js"></script>
+
   </body>
 </html>

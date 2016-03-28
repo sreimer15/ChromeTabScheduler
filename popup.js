@@ -1,4 +1,6 @@
 $(document).ready(function(){
+  $('.modal-trigger').leanModal();
+
   console.log('this is within the popup.js')
   // Defines what Number to append to name of input tag
   var currentNum = 1;
@@ -34,8 +36,6 @@ $(document).ready(function(){
             cb(title);
           }
     });
-
-
   }
 
   var scheduleOpening = function(urlObject,windowId){
@@ -109,6 +109,7 @@ $(document).ready(function(){
 
   // Submits our Form adding time delay to opening our tab+s Opens our 
   $("#linksForm").submit(function(event){
+    var periodicInterval;
     var formData = [];
     // Let's get formData from all Links including time, into an array
     for (var i = 1; i <= currentNum; i++) {
@@ -118,11 +119,23 @@ $(document).ready(function(){
           currentTime      = $('input[name=time' + i.toString() + ']').val() * timeObject[timeFlag] + Date.now(),
           currentUrl       = $('input[name=link' + i.toString() + ']').val();
 
+      // We should convert to HTTPS
       var urlToGetTitle = currentUrl.replace(/.*?:\/\//g, "");
       console.log(urlToGetTitle);
+
+      $(".modalButton").on('click',function(event){
+        console.log($(this))
+        console.log(periodicInterval)
+        periodicInterval = $(this).data('interval');
+        console.log(periodicInterval)
+        // Probably want a toast here
+        
+      })
+
+
       getTitleFromUrl(urlToGetTitle, function(title){
         console.log(title,'let us see if we actually got the title')
-        var newFormData = {'url': currentUrl, 'time': currentTime, 'category': currentCategory, 'title': title };
+        var newFormData = {'url': currentUrl, 'time': currentTime, 'category': currentCategory, 'title': title, 'periodicInterval': periodicInterval };
         console.log(newFormData,"Do we still have the right thing?")
         formData.push(newFormData);
       })
@@ -130,6 +143,8 @@ $(document).ready(function(){
     // chrome.runtime.sendMessage is an async process so our data is correct even though scoping
     // Would imply that formData wouldn't have meaning yet
     chrome.runtime.sendMessage({"message": "inputted_tabs", activeTabsArray: formData});
+
+    $('#schedulingModal').closeModal();
       
     event.preventDefault();
   });
@@ -143,6 +158,18 @@ $(document).ready(function(){
       console.log(currentWindow.id)
       var activeTabsArray = [];
       currentWindowId = currentWindow.id;
+      var periodicInterval;
+      $('#schedulingModal').openModal();
+
+      $(".modalButton").on('click',function(event){
+        console.log($(this))
+        console.log(periodicInterval)
+        periodicInterval = $(this).data('interval');
+        console.log(periodicInterval)
+        // Probably want a toast here
+        // $('#schedulingModal').closeModal();
+      })
+
 
       // get tabs in order to save them
       chrome.tabs.query({currentWindow: true}, function(tabs){
@@ -153,7 +180,7 @@ $(document).ready(function(){
         tabs.forEach(function(tab){
           var tabCategory = $('input[name=activeTabCategory]').val() || 'uncategorized';
           console.log(tab.title)
-          var currentObj = {'url': tab.url, time: tabTime, category: tabCategory, 'title': tab.title };
+          var currentObj = {'url': tab.url, time: tabTime, category: tabCategory, 'title': tab.title, 'periodicInterval': periodicInterval };
           activeTabsArray.push(currentObj);
         })        
         // {time: time, url: url,  category: category}
@@ -167,6 +194,10 @@ $(document).ready(function(){
         // Create a new window for our active tabs array
       // Close the window once we save all of them
       // Current Problem when we close we lose data
+      
+      // Bind the modalButtons
+
+
       chrome.windows.remove(currentWindowId);
 
       })
@@ -200,6 +231,8 @@ $(document).ready(function(){
     })
     event.preventDefault();
   })
+  // Set up the modalButton
+  
 
   chrome.identity.getProfileUserInfo(function(userInfo){
     console.log(userInfo,'This is the userInfo')
@@ -215,7 +248,9 @@ $(document).ready(function(){
     console.log('these are the items',items)
   })
 
-  // Add to Category Tabs
+
+
+
 
   
 
