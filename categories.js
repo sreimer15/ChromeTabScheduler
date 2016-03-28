@@ -30,14 +30,38 @@ $(document).ready(function(){
   $(document).on('click', 'input[type=checkbox]', function(){
     // Probably gonna have to get a name
     var newValue = $(this).prop('checked')
-    console.log($(this).data())
+    // New Value is a boolean, true for Read False for Unread
+    
     var dataCategoryNumber = $(this).data('categorynumber')
     var parentCategory = $('h3[name=nameCategory' + dataCategoryNumber + ']').text();
-    console.log(parentCategory)
+    
+    var thisURL = $(this).parents("a").attr("href");
+    console.log(thisURL)
 
     storageArea.get('categories',function(categories){
-      categories = categories.categories
-      var oldArrayOfLinks = categories[parentCategory.toLowerCase()];
+      categories = categories.categories;
+      console.log(categories)
+      var oldArrayOfLinks = categories[parentCategory];
+      console.log(oldArrayOfLinks);
+      var indexOfMatch;
+
+      var linkObjToUpdate = oldArrayOfLinks.find(function(element,index){
+        if (element.url === thisURL ){
+          indexOfMatch = index;
+          return true;
+        }
+      })
+      // Update LinkObj, because they are held by reference our categories obj is now updated
+      linkObjToUpdate.read = newValue;
+
+      // oldArrayOfLinks[indexOfMatch] = linkObjToUpdate;
+      // var updatedObject = categories[parentCategory];
+      
+
+      storageArea.set({ 'categories': categories });
+      
+      // Use our index of match to update and re-set our categories Obj with new Prop
+
       // find the urls that you are updating
       
     })
@@ -54,37 +78,43 @@ $(document).ready(function(){
       // We need to get a favicon and a url
         // http://www.google.com/s2/favicons?domain=(INSERT URL HERE) will get you favicon
           // so <img src="http://www.google.com/s2/favicons?domain=(INSERTURL)>"
-      var arrayOfLinks = userCategoriesObj[userCategory] || [{'url':'whatever','title':'lel'}];
-      arrayOfLinks = [{'url':'https://www.reddit.com','title':'lel'}];
+      var arrayOfLinks = userCategoriesObj[userCategory];
+      
       console.log(arrayOfLinks,'These are the array of links')
+      var container = [
+      '<div class="col s6 container">',
+        '<h3 name=nameCategory' + nameCategoryNumber + '>'+ userCategory.toProperCase() + '</h3>',
+          '<ol class="collection" name=collection' + nameCategoryNumber + '>',
+              '</ol>',
+          '</div>'
+      ].join(' ');
+      $('#categoriesMaster').append(container);
+      
       arrayOfLinks.forEach(function(linkObj){
         // We can use chrome.tabs.query
         var url = linkObj.url
 
-        console.log(url,"this is the url")
         var title = linkObj.title;
 
         // Gonna have to differentiate switchNeeded
         // WE NEED HTTPS://WWW.REDDIT.COM
 
+
         var faviconQueryString = '<img src="http://www.google.com/s2/favicons?domain=' + url + '">';
         var categorySection = [
-                              '<div class="col s6 container">',
-                                '<h3 name=nameCategory' + nameCategoryNumber + '>'+ userCategory.toProperCase() + '</h3>',
-                                  '<ol class="collection">',
                                     '<li class="collection-item">',
-                                    '<a href='+ url + '>',
+                                    '<a href="'+ url + '">',
                                      faviconQueryString,
+                                     // Need to get parent of input which should be span
+                                     // Then parent of span which should be a tag 
+                                      // Worst Case Scenario we create a linkNumber
                                       '<span class="switchNeeded'+ nameCategoryNumber + '">' + title + '</span>',
                                       '</a>',
-                                    '</li>',
-                                  '</ol>',
-                              '</div>'
+                                    '</li>'
                               ]
 
         var categoryHTML = categorySection.join(' ');
-        console.log(categoryHTML)
-        $('#categoriesMaster').append(categoryHTML);
+        $('ol[name=collection' + nameCategoryNumber + ']').append(categoryHTML);
       })
       addSwitch(nameCategoryNumber);
 
