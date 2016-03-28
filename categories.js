@@ -21,18 +21,21 @@ $(document).ready(function(){
         '<span class="lever"></span>',
         'Read',
     '</label>',
+    '<span class="secondary-content">Remove From Category <i class="material-icons removeFromCategory">delete</i> </span>',
     '</div>'
+
+
     ].join(' ')
 
     $('.switchNeeded' + nameCategoryNumber).append(HTMLtoAdd)
     var linksToIterate = $('.switchNeeded' + nameCategoryNumber)
+    // Goes through all of the links and sees if they have been read or not and updates
+      // the display
     linksToIterate.each(function(index){
       console.log($(this).data('read'))
       var switchFlag = $(this).data('read');
       if(switchFlag){
-        console.log('we made it')
         var inputToChange = $(this).find('input');
-        console.log(inputToChange)
         inputToChange.prop('checked', true);
       };
     });
@@ -121,8 +124,7 @@ $(document).ready(function(){
                                      // Need to get parent of input which should be span
                                      // Then parent of span which should be a tag 
                                       // Worst Case Scenario we create a linkNumber
-                                      '<span class="switchNeeded'+ nameCategoryNumber + '" data-read=' + read + '>' + title + '</span>',
-                                      '</a>',
+                                      '<span class="switchNeeded'+ nameCategoryNumber + '" data-read=' + read + '>' + title + ' </a> </span>',
                                     '</li>'
                               ]
 
