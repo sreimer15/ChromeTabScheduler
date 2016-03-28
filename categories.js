@@ -11,7 +11,8 @@ $(document).ready(function(){
         function($1) { return $1.toUpperCase(); });
   }
 
-  var addSwitch = function(nameCategoryNumber){
+  var addSwitch = function(nameCategoryNumber,readOrUnread){
+
     var HTMLtoAdd = [
     '<div class="switch">',
       '<label>',
@@ -24,6 +25,17 @@ $(document).ready(function(){
     ].join(' ')
 
     $('.switchNeeded' + nameCategoryNumber).append(HTMLtoAdd)
+    var linksToIterate = $('.switchNeeded' + nameCategoryNumber)
+    linksToIterate.each(function(index){
+      console.log($(this).data('read'))
+      var switchFlag = $(this).data('read');
+      if(switchFlag){
+        console.log('we made it')
+        var inputToChange = $(this).find('input');
+        console.log(inputToChange)
+        inputToChange.prop('checked', true);
+      };
+    });
 
   }
 
@@ -59,7 +71,7 @@ $(document).ready(function(){
       
 
       storageArea.set({ 'categories': categories });
-      
+
       // Use our index of match to update and re-set our categories Obj with new Prop
 
       // find the urls that you are updating
@@ -95,6 +107,7 @@ $(document).ready(function(){
         var url = linkObj.url
 
         var title = linkObj.title;
+        var read = linkObj.read;
 
         // Gonna have to differentiate switchNeeded
         // WE NEED HTTPS://WWW.REDDIT.COM
@@ -108,7 +121,7 @@ $(document).ready(function(){
                                      // Need to get parent of input which should be span
                                      // Then parent of span which should be a tag 
                                       // Worst Case Scenario we create a linkNumber
-                                      '<span class="switchNeeded'+ nameCategoryNumber + '">' + title + '</span>',
+                                      '<span class="switchNeeded'+ nameCategoryNumber + '" data-read=' + read + '>' + title + '</span>',
                                       '</a>',
                                     '</li>'
                               ]
@@ -116,6 +129,7 @@ $(document).ready(function(){
         var categoryHTML = categorySection.join(' ');
         $('ol[name=collection' + nameCategoryNumber + ']').append(categoryHTML);
       })
+
       addSwitch(nameCategoryNumber);
 
     })
