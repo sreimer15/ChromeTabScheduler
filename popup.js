@@ -123,11 +123,16 @@ $(document).ready(function(){
       var urlToGetTitle = currentUrl.replace(/.*?:\/\//g, "");
       console.log(urlToGetTitle);
 
+      $('#schedulingModal').openModal();
+
+
+
       $(".modalButton").on('click',function(event){
         console.log($(this))
         console.log(periodicInterval)
         periodicInterval = $(this).data('interval');
         console.log(periodicInterval)
+        $('#schedulingModal').closeModal();
         // Probably want a toast here
         
       })
@@ -166,8 +171,9 @@ $(document).ready(function(){
         console.log(periodicInterval)
         periodicInterval = $(this).data('interval');
         console.log(periodicInterval)
+        alert(periodicInterval)
         // Probably want a toast here
-        // $('#schedulingModal').closeModal();
+        $('#schedulingModal').closeModal();
       })
 
 

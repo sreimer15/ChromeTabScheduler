@@ -1,5 +1,39 @@
 var storageArea = chrome.storage.sync;
 var inputtedTabsThreshold = 20;
+var oneDay = 1000 * 60 * 60 * 24;
+var oneWeek = 1000 * 60 * 60 * 24 * 7;
+
+var periodicTimeObject = {
+                          "daily": oneDay
+                          "weekly": oneWeek
+                         }
+
+ // in our converter it will be if it is none or undefined clear 
+  // else pass through this funciton
+
+
+function periodicTimeConverter(time, timePeriodString){
+  // Time should be milliseconds since epoch
+  // We are going to set up and then not clear.
+  if (timePeriodString === "daily") {
+    return time + oneDay;
+  } if (timePeriodString === "weekly"){
+    return time + oneWeek;
+  } else if (timePeriodString ==="dailynoweekend") {
+    // Else our string is daily no weekend
+      var newDate = Date(time).getDay();
+      var dayOfWeek = newDate.getDay();
+      if (dayOfWeek === 5){
+        // If the day of the week is friday
+          // Set up next alarm for two days from now
+        return time + (oneDay * 2);
+      } else {
+        // Set up alarm for tomorrow
+        return time + oneDay;
+      }
+  }  
+}
+  
 
 var handleOpening = function(urlObject,windowId){
   var currentUrl = urlObject.url
@@ -41,15 +75,15 @@ function handleTiming(previousQueue, newSetOfTabs, timing){
   return previousQueue;
 };
 
-function clearTime(activeLinkQueue, alarmName, triggerTime) {
+function clearTime(linkQueue, alarmName, triggerTime, typeOfQueue) {
   // Clears link 
   chrome.alarms.clear(alarmName, function(wasCleared){
     // remove from ActiveLinkQueue
-    var updatedQueue = activeLinkQueue;
+    var updatedQueue = linkQueue;
     console.log(updatedQueue,"Prior to Deletion")
     delete updatedQueue[triggerTime.toString()]
     console.log(updatedQueue,"Post Deletion")
-    storageArea.set({ "activeLinkQueue": updatedQueue })          
+    storageArea.set({ typeOfQueue: updatedQueue })          
   })
 }
 
@@ -85,7 +119,7 @@ var updateInputtedTabs = function(toAddToQueue){
       currentCategories = handleCategories(currentCategories,urlObject);
       var currentTime = urlObject.time;
       previousQueue = handleTiming(previousQueue,urlObject,currentTime);
-      chrome.alarms.create("inputtedTabsScheduledOpening",{when: currentTime})
+      chrome.alarms.create("inputtedTabsScheduledOpening" + currentTime.toString(),{when: currentTime})
     });
     var newCategories = currentCategories;
     var newQueue = previousQueue;
@@ -101,7 +135,13 @@ var openActiveLinkTabs = function(triggerTime,alarmName){
     console.log(activeLinkQueue)
     activeLinkQueue = activeLinkQueue.activeLinkQueue;
     console.log(activeLinkQueue.triggerTime)
+
     var linksToOpen = activeLinkQueue[triggerTime];
+    var periodicInterval =  linksToOpen[0].periodicInterval;
+    console.log(periodicInterval,'This is the periodicInterval')
+    console.log("daily, weekly dailynoweekend none should be the options");
+
+
       linksToOpen.forEach(function(arrayOfTabs){
         // This is an array filled with tabs, if we do have two arrays for a
         // given time we categorize them differently, open them in different windows
@@ -115,14 +155,16 @@ var openActiveLinkTabs = function(triggerTime,alarmName){
       });
       // Delete our alarm and update our ActiveLinkQueue
       console.log(alarmName)
-      chrome.alarms.clear(alarmName, function(wasCleared){
-        // remove from ActiveLinkQueue
-        var updatedQueue = activeLinkQueue;
-        console.log(updatedQueue,"Prior to Deletion")
-        delete updatedQueue[triggerTime.toString()]
-        console.log(updatedQueue,"Post Deletion")
-        storageArea.set({ "activeLinkQueue": updatedQueue })          
-      })
+      console.log(periodicInterval,'prior to our check');
+      if (periodicInterval === "none" || !periodicInterval){
+        clearTime(activeLinkQueue, alarmName, triggerTime, "activeLinkQueue")  
+      } else {
+        // Clearing the time is redundant but I like the readability
+        clearTime(activeLinkQueue, alarmName, triggerTime, "activeLinkQueue")  
+        var newTime = periodicTimeConverter(time,periodicInterval)
+        chrome.alarms.create("activeTabsScheduledOpening" + newTime.toString(), {"when": newTime})
+      }
+      
   })
 }
 
@@ -135,6 +177,7 @@ var openInputtedLinkTabs = function(triggerTime,alarmName){
     var windowId = items.inputtedTabWindow;
     var previousInputtedLinkQueue = items.inputtedLinkQueue;
     var linksToOpen = previousInputtedLinkQueue[triggerTime];
+    var periodicInterval =  linksToOpen[0].periodicInterval;
     // First check if there is a passiveTab window
     if(windowId){
       // If there is check if the tab lenght is less than inputtedTabsThreshold
@@ -171,19 +214,14 @@ var openInputtedLinkTabs = function(triggerTime,alarmName){
       });
     }
     // Let us update our alarm
-    console.log(alarmName)
-    chrome.alarms.clear(alarmName, function(wasCleared){
-      // remove from ActiveLinkQueue
-      var updatedQueue = previousInputtedLinkQueue;
-      console.log(updatedQueue,"Prior to Deletion")
-      delete updatedQueue[triggerTime.toString()]
-      console.log(updatedQueue,"Post Deletion")
-      storageArea.set({ "inputtedLinkQueue": updatedQueue })          
-    })
-
+    if (periodicInterval === "none" || !periodicInterval){
+      clearTime(previousInputtedLinkQueue, alarmName, triggerTime, "inputtedLinkQueue")
+    } else {
+      clearTime(previousInputtedLinkQueue, alarmName, triggerTime, "inputtedLinkQueue")
+      var newTime = periodicTimeConverter(time,periodicInterval)
+      chrome.alarms.create("inputtedTabsScheduledOpening" + newTime.toString(), {"when": newTime})    
+    }
   })
-
-  // We still need to clear our alarm
 
 }
 
@@ -205,7 +243,7 @@ chrome.runtime.onMessage.addListener(
         // If we get something at the same time  push into array
 
     if (request.message === "new_tabs"){
-      console.log(request.activeTabsArray);      
+      console.log(request.activeTabsArray,'our active tabs array should have periodicInterval');      
       var toAddToQueue = request.activeTabsArray;
       var timing = request.timing;
       updateActiveTabs(toAddToQueue,timing);
