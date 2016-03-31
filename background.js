@@ -4,7 +4,7 @@ var oneDay = 1000 * 60 * 60 * 24;
 var oneWeek = 1000 * 60 * 60 * 24 * 7;
 
 var periodicTimeObject = {
-                          "daily": oneDay
+                          "daily": oneDay,
                           "weekly": oneWeek
                          }
 
@@ -19,7 +19,7 @@ function periodicTimeConverter(time, timePeriodString){
     return time + oneDay;
   } if (timePeriodString === "weekly"){
     return time + oneWeek;
-  } else if (timePeriodString ==="dailynoweekend") {
+  } else if (timePeriodString ==="weekdays") {
     // Else our string is daily no weekend
       var newDate = Date(time).getDay();
       var dayOfWeek = newDate.getDay();
@@ -96,6 +96,7 @@ var updateActiveTabs = function(toAddToQueue,timing) {
     var currentCategories = items.categories;
     toAddToQueue.forEach(function(urlObject){
       // urlObject looks like this = {time: time, url: url,  category: category}
+      console.log(urlObject,"This is within our updateActiveTabs should have periodicInterval")
       currentCategories = handleCategories(currentCategories,urlObject);
     })
     var newQueue = handleTiming(previousQueue,toAddToQueue,timing);
@@ -134,10 +135,14 @@ var openActiveLinkTabs = function(triggerTime,alarmName){
   storageArea.get("activeLinkQueue", function(activeLinkQueue){
     console.log(activeLinkQueue)
     activeLinkQueue = activeLinkQueue.activeLinkQueue;
-    console.log(activeLinkQueue.triggerTime)
+    console.log(activeLinkQueue[triggerTime])
 
     var linksToOpen = activeLinkQueue[triggerTime];
-    var periodicInterval =  linksToOpen[0].periodicInterval;
+    // I made the links nested gotta check if I should still be doing that.
+    var periodicInterval =  linksToOpen[0][0].periodicInterval;
+
+    console.log(linksToOpen);
+    console.log(linksToOpen[0][0],'first link should have a periodicInterval property');
     console.log(periodicInterval,'This is the periodicInterval')
     console.log("daily, weekly dailynoweekend none should be the options");
 
@@ -161,7 +166,7 @@ var openActiveLinkTabs = function(triggerTime,alarmName){
       } else {
         // Clearing the time is redundant but I like the readability
         clearTime(activeLinkQueue, alarmName, triggerTime, "activeLinkQueue")  
-        var newTime = periodicTimeConverter(time,periodicInterval)
+        var newTime = periodicTimeConverter(triggerTime,periodicInterval)
         chrome.alarms.create("activeTabsScheduledOpening" + newTime.toString(), {"when": newTime})
       }
       
@@ -177,7 +182,7 @@ var openInputtedLinkTabs = function(triggerTime,alarmName){
     var windowId = items.inputtedTabWindow;
     var previousInputtedLinkQueue = items.inputtedLinkQueue;
     var linksToOpen = previousInputtedLinkQueue[triggerTime];
-    var periodicInterval =  linksToOpen[0].periodicInterval;
+    var periodicInterval =  linksToOpen[0][0].periodicInterval;
     // First check if there is a passiveTab window
     if(windowId){
       // If there is check if the tab lenght is less than inputtedTabsThreshold

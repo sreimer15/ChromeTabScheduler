@@ -1,5 +1,4 @@
 $(document).ready(function(){
-  console.log("broseph we made it")
   var storageArea = chrome.storage.sync;
   var userCategoriesObj;
   var userCategories;
@@ -32,7 +31,6 @@ $(document).ready(function(){
     // Goes through all of the links and sees if they have been read or not and updates
       // the display
     linksToIterate.each(function(index){
-      console.log($(this).data('read'))
       var switchFlag = $(this).data('read');
       if(switchFlag){
         var inputToChange = $(this).find('input');
@@ -51,13 +49,10 @@ $(document).ready(function(){
     var parentCategory = $('h3[name=nameCategory' + dataCategoryNumber + ']').text();
     
     var thisURL = $(this).parents("a").attr("href");
-    console.log(thisURL)
 
     storageArea.get('categories',function(categories){
       categories = categories.categories;
-      console.log(categories)
       var oldArrayOfLinks = categories[parentCategory];
-      console.log(oldArrayOfLinks);
       var indexOfMatch;
 
       var linkObjToUpdate = oldArrayOfLinks.find(function(element,index){
@@ -75,10 +70,6 @@ $(document).ready(function(){
 
       storageArea.set({ 'categories': categories });
 
-      // Use our index of match to update and re-set our categories Obj with new Prop
-
-      // find the urls that you are updating
-      
     })
 
 
@@ -86,16 +77,12 @@ $(document).ready(function(){
 
   var addCategorySection = function(userCategoriesObj){
     var userCategoriesArray = Object.keys(userCategoriesObj);
-    console.log('this is a userCategoriesArray', userCategoriesArray)
     userCategoriesArray.forEach(function(userCategory){
       nameCategoryNumber++;
-      console.log(userCategory)
       // We need to get a favicon and a url
         // http://www.google.com/s2/favicons?domain=(INSERT URL HERE) will get you favicon
           // so <img src="http://www.google.com/s2/favicons?domain=(INSERTURL)>"
       var arrayOfLinks = userCategoriesObj[userCategory];
-      
-      console.log(arrayOfLinks,'These are the array of links')
       var container = [
       '<div class="col s6 container">',
         '<h3 name=nameCategory' + nameCategoryNumber + '>'+ userCategory.toProperCase() + '</h3>',
@@ -108,6 +95,9 @@ $(document).ready(function(){
       arrayOfLinks.forEach(function(linkObj){
         // We can use chrome.tabs.query
         var url = linkObj.url
+        // replace http with https
+        url = url.replace(/^http:\/\//i, 'https://');
+
 
         var title = linkObj.title;
         var read = linkObj.read;
@@ -138,7 +128,6 @@ $(document).ready(function(){
   }
 
   storageArea.get(null,function(items){
-    console.log(items,"These are the items")
     userCategoriesObj = items.categories;
     // storageArea.set({ "categories": newCategories });
       // On clicking a link, let us turn property on or off

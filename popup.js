@@ -1,7 +1,5 @@
 $(document).ready(function(){
   $('.modal-trigger').leanModal();
-
-  console.log('this is within the popup.js')
   // Defines what Number to append to name of input tag
   var currentNum = 1;
   var listOfInputtedLinks = [];
@@ -12,6 +10,7 @@ $(document).ready(function(){
                     'days': 1000 * 60 * 60 * 24
                    }
   var currentIdentity;
+  var periodicInterval;
 
   var testIfNewUser = function(){
     chrome.identity.getProfileUserInfo(function(userInfo){
@@ -28,7 +27,10 @@ $(document).ready(function(){
 
 
   var getTitleFromUrl = function(currentUrl,cb){
-    
+    // For this we need to parse out the http:// part
+    // But we want https:// for our urls
+    // So we want to make sure we are using https:// on inputted links
+    // And we want to take out the https:// before it gets here
     $.ajax({
           url: "http://textance.herokuapp.com/title/" + currentUrl,
           complete: function(data) {
@@ -101,7 +103,6 @@ $(document).ready(function(){
     var timeSpanSelector = $(this).text().toLowerCase();
     // Find the exact link to change
     var dataIndexNumber = $(this).data('indexnumber');
-    console.log(dataIndexNumber,'This is from ActiveTabs Category');
     // Update link's time category
     $('div[name=timespancategory' + dataIndexNumber + ']' ).data('timespancategory', timeSpanSelector)
     event.preventDefault();
@@ -109,48 +110,42 @@ $(document).ready(function(){
 
   // Submits our Form adding time delay to opening our tab+s Opens our 
   $("#linksForm").submit(function(event){
-    var periodicInterval;
-    var formData = [];
-    // Let's get formData from all Links including time, into an array
-    for (var i = 1; i <= currentNum; i++) {
-      // Get the appropriate data from our input tags
-      var timeFlag         = $('div[name=timespancategory' + i.toString() + ']' ).data('timespancategory'),
-          currentCategory  = $('input[name=inputtedTabCategory' + i.toString() + ']').val() || "uncategorized",
-          currentTime      = $('input[name=time' + i.toString() + ']').val() * timeObject[timeFlag] + Date.now(),
-          currentUrl       = $('input[name=link' + i.toString() + ']').val();
+    $('#schedulingModal').openModal();
+    
+    $(".modalButton").on('click',function(event){
+      var periodicInterval;
+      var formData = [];
+      periodicInterval = $(this).data('interval');
 
-      // We should convert to HTTPS
-      var urlToGetTitle = currentUrl.replace(/.*?:\/\//g, "");
-      console.log(urlToGetTitle);
+      // Let's get formData from all Links including time, into an array
+      for (var i = 1; i <= currentNum; i++) {
+        // Get the appropriate data from our input tags
+        var timeFlag         = $('div[name=timespancategory' + i.toString() + ']' ).data('timespancategory'),
+            currentCategory  = $('input[name=inputtedTabCategory' + i.toString() + ']').val() || "uncategorized",
+            currentTime      = $('input[name=time' + i.toString() + ']').val() * timeObject[timeFlag] + Date.now(),
+            currentUrl       = $('input[name=link' + i.toString() + ']').val();
 
-      $('#schedulingModal').openModal();
+        // We should convert to HTTPS
+        var urlToGetTitle = currentUrl.replace(/.*?:\/\//g, "");
 
+        getTitleFromUrl(urlToGetTitle, function(title){
+          var newFormData = {'url': currentUrl, 'time': currentTime, 'category': currentCategory, 'title': title, 'periodicInterval': periodicInterval };
+          formData.push(newFormData);
+        })  
 
-
-      $(".modalButton").on('click',function(event){
-        console.log($(this))
-        console.log(periodicInterval)
-        periodicInterval = $(this).data('interval');
-        console.log(periodicInterval)
-        $('#schedulingModal').closeModal();
-        // Probably want a toast here
-        
-      })
-
-
-      getTitleFromUrl(urlToGetTitle, function(title){
-        console.log(title,'let us see if we actually got the title')
-        var newFormData = {'url': currentUrl, 'time': currentTime, 'category': currentCategory, 'title': title, 'periodicInterval': periodicInterval };
-        console.log(newFormData,"Do we still have the right thing?")
-        formData.push(newFormData);
-      })
-    }
-    // chrome.runtime.sendMessage is an async process so our data is correct even though scoping
-    // Would imply that formData wouldn't have meaning yet
-    chrome.runtime.sendMessage({"message": "inputted_tabs", activeTabsArray: formData});
+      }
 
     $('#schedulingModal').closeModal();
-      
+    Materialize.toast('Tabs Saved', 2000)
+    chrome.runtime.sendMessage({"message": "inputted_tabs", activeTabsArray: formData});
+
+    })
+
+    
+    // chrome.runtime.sendMessage is an async process so our data is correct even though scoping
+    // Would imply that formData wouldn't have meaning yet
+    
+    
     event.preventDefault();
   });
 
@@ -159,52 +154,43 @@ $(document).ready(function(){
     var currentWindowId;
     
     chrome.windows.getCurrent({},function(currentWindow){
-      console.log('within currentWindow function')
-      console.log(currentWindow.id)
       var activeTabsArray = [];
       currentWindowId = currentWindow.id;
-      var periodicInterval;
+      
       $('#schedulingModal').openModal();
 
       $(".modalButton").on('click',function(event){
-        console.log($(this))
-        console.log(periodicInterval)
         periodicInterval = $(this).data('interval');
-        console.log(periodicInterval)
-        alert(periodicInterval)
+
         // Probably want a toast here
+        // get tabs in order to save them
+        chrome.tabs.query({currentWindow: true}, function(tabs){
+          var timeFlag = timeFlag = $('div[name=timespancategoryActiveTabs]' ).data('timespancategory');
+          var tabTime = $('input[name=activeTabsTime]').val() * timeObject[timeFlag] + Date.now() || 3000;
+
+          tabs.forEach(function(tab){
+            var tabCategory = $('input[name=activeTabCategory]').val() || 'uncategorized';
+
+            var currentObj = {'url': tab.url, time: tabTime, category: tabCategory, 'title': tab.title, 'periodicInterval': periodicInterval };
+            activeTabsArray.push(currentObj);
+          })        
+          // {time: time, url: url,  category: category}
+            // add an auto fill with categories that already exist
+
+          // Send message to our background
+          chrome.runtime.sendMessage({"message": "new_tabs", activeTabsArray: activeTabsArray, "timing": tabTime});
+
+          // Create a new window for our active tabs array
+        // Close the window once we save all of them
+        // Current Problem when we close we lose data
+        
+        // Bind the modalButtons
+
+         Materialize.toast('Tabs Saved', 2000) 
+        // chrome.windows.remove(currentWindowId);
+
         $('#schedulingModal').closeModal();
       })
-
-
-      // get tabs in order to save them
-      chrome.tabs.query({currentWindow: true}, function(tabs){
-        var timeFlag = timeFlag = $('div[name=timespancategoryActiveTabs]' ).data('timespancategory');
-        var tabTime = $('input[name=activeTabsTime]').val() * timeObject[timeFlag] + Date.now() || 3000;
-        console.log(tabTime)
-
-        tabs.forEach(function(tab){
-          var tabCategory = $('input[name=activeTabCategory]').val() || 'uncategorized';
-          console.log(tab.title)
-          var currentObj = {'url': tab.url, time: tabTime, category: tabCategory, 'title': tab.title, 'periodicInterval': periodicInterval };
-          activeTabsArray.push(currentObj);
-        })        
-        // {time: time, url: url,  category: category}
-          // add an auto fill with categories that already exist
-
-        // Send message to our background
-        console.log(activeTabsArray)
-        console.log(tabTime)
-        chrome.runtime.sendMessage({"message": "new_tabs", activeTabsArray: activeTabsArray, "timing": tabTime});
-
-        // Create a new window for our active tabs array
-      // Close the window once we save all of them
-      // Current Problem when we close we lose data
-      
-      // Bind the modalButtons
-
-
-      chrome.windows.remove(currentWindowId);
 
       })
     });
@@ -215,35 +201,38 @@ $(document).ready(function(){
 
   // If we want to use auth Tokens we need to register our app
   // chrome.identity.getAuthToken({interactive: true}, function(token){
-  //   console.log(token, "this is the token")
+  //
   //   return token
   // })
 
-  $('#testButton').on('click',function(event){
-    var activeTabsArray = [{'time': Date.now() + 3000, 'url': 'http://www.reddit.com', 'category': 'distraction'},
-                           {'time': Date.now() + 3000, 'url': 'http://www.reddit.com', 'category': 'uncategorized'}
-                          ]
-    chrome.runtime.sendMessage({"message": "new_tabs", activeTabsArray: activeTabsArray, "timing": Date.now() + 3000 });
-    console.log('testButton works')
+  // $('#testButton').on('click',function(event){
+  //   var activeTabsArray = [{'time': Date.now() + 3000, 'url': 'http://www.reddit.com', 'category': 'distraction'},
+  //                          {'time': Date.now() + 3000, 'url': 'http://www.reddit.com', 'category': 'uncategorized'}
+  //                         ]
+  //   chrome.runtime.sendMessage({"message": "new_tabs", activeTabsArray: activeTabsArray, "timing": Date.now() + 3000 });
+  //   event.preventDefault();
+  // })
+
+  $("#categoriesViewButton").on('click',function(event){
+    categoriesPage = chrome.extension.getURL("categories.html")
+    chrome.tabs.create({'url': categoriesPage},function(tab){
+    })
     event.preventDefault();
   })
 
-  $("#categoriesViewButton").on('click',function(event){
-    console.log("This is the category View button")
-    categoriesPage = chrome.extension.getURL("categories.html")
-    console.log(categoriesPage)
-    chrome.tabs.create({'url': categoriesPage},function(tab){
-      console.log(tab,'The tab is open')
+  $("#clearAllPeriodicAlarms").on('click', function(event){
+    // Bad practice or not we are only getting the first link's periodic element so we can just remove hte first one
+    storageArea.get('activeLinkQueue', function(activeLinkQueue){
+      activeLinkQueue = activeLinkQueue.activeLinkQueue;
+      var copy = activeLinkQueue;
+      copy[0][0].periodicInterval = "none";
+      storageArea.set({"activeLinkQueue": copy })
     })
-    event.preventDefault();
   })
   // Set up the modalButton
   
 
   chrome.identity.getProfileUserInfo(function(userInfo){
-    console.log(userInfo,'This is the userInfo')
-    console.log(userInfo.email)
-    console.log(userInfo.id)
     currentIdentity = userInfo.id
   })
   // Add to Timed Tabs
@@ -251,11 +240,21 @@ $(document).ready(function(){
   
   // This should get fromStorageArea
   storageArea.get('identity', function(items){
-    console.log('these are the items',items)
   })
 
 
+  function update() {
+    var timeFlag = timeFlag = $('div[name=timespancategoryActiveTabs]' ).data('timespancategory');
+    var tabTime = $('input[name=activeTabsTime]').val() * timeObject[timeFlag] + Date.now() || 3000;
+    console.log(tabTime);
 
+    $('#clock').html( moment(tabTime).format('MMMM Do YYYY, h:mm:ss A'));
+
+  }
+
+  setInterval(update, 1000);
+
+  $('')
 
 
   

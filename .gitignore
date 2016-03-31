@@ -1,16 +1,17 @@
 # Jquery
 jquery-2.2.1.min.js
 
-#lodash
-lodash.min.js
 
 # node_modules
 node_modules/
 
 #mocha
-mocha.js
+test/mocha.js
 test/mocha.css/
 
 #chai
-chai.js
+test/chai.js
 
+#manageAlarms and periodicScheduler not ready for production
+manageAlarms.html
+periodicScheduler.html
