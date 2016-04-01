@@ -23,7 +23,7 @@ $(document).ready(function(){
     });
   };
   
-  testIfNewUser();
+  // testIfNewUser();
 
 
   var getTitleFromUrl = function(currentUrl,cb){
@@ -186,10 +186,9 @@ $(document).ready(function(){
         
         // Bind the modalButtons
 
-         Materialize.toast('Tabs Saved', 2000) 
-        // chrome.windows.remove(currentWindowId);
-
+         Materialize.toast('Tabs Saved', 1000) 
         $('#schedulingModal').closeModal();
+        chrome.windows.remove(currentWindowId);
       })
 
       })

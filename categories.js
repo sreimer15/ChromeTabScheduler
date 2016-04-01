@@ -77,6 +77,8 @@ $(document).ready(function(){
 
   var addCategorySection = function(userCategoriesObj){
     var userCategoriesArray = Object.keys(userCategoriesObj);
+    console.log(userCategoriesObj,'User category object')
+    console.log(userCategoriesArray)
     userCategoriesArray.forEach(function(userCategory){
       nameCategoryNumber++;
       // We need to get a favicon and a url
