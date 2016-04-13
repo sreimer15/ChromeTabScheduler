@@ -219,6 +219,13 @@ $(document).ready(function(){
     event.preventDefault();
   })
 
+  $("#alarmsViewButton").on('click',function(event){
+    alarmsPage = chrome.extension.getURL("manageAlarms.html")
+    chrome.tabs.create({'url': alarmsPage},function(tab){
+    })
+    event.preventDefault();
+  })
+
   $("#clearAllPeriodicAlarms").on('click', function(event){
     // Bad practice or not we are only getting the first link's periodic element so we can just remove hte first one
     storageArea.get('activeLinkQueue', function(activeLinkQueue){

@@ -22,8 +22,6 @@ $(document).ready(function(){
     '</label>',
     '<span class="secondary-content">Remove From Category <i class="material-icons removeFromCategory">delete</i> </span>',
     '</div>'
-
-
     ].join(' ')
 
     $('.switchNeeded' + nameCategoryNumber).append(HTMLtoAdd)
@@ -71,8 +69,6 @@ $(document).ready(function(){
       storageArea.set({ 'categories': categories });
 
     })
-
-
   })
 
   var addCategorySection = function(userCategoriesObj){
