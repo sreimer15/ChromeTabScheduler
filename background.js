@@ -80,39 +80,37 @@ function clearTime(linkQueue, alarmName, triggerTime, typeOfQueue) {
   chrome.alarms.clear(alarmName, function(wasCleared){
     // remove from ActiveLinkQueue
     var updatedQueue = linkQueue;
-    console.log(updatedQueue,"Prior to Deletion")
+    console.log(updatedQueue,'Prior to Deletion')
     delete updatedQueue[triggerTime.toString()]
-    console.log(updatedQueue,"Post Deletion")
-    storageArea.set({ typeOfQueue: updatedQueue })          
+    storageArea.set({ typeOfQueue: updatedQueue })
+    console.log("postDeletion")   
+    storageArea.get(null,function(items){
+      console.log(items)
+    })
   })
 }
 
 var updateActiveTabs = function(toAddToQueue,timing) {
   storageArea.get(["activeLinkQueue","categories"] , function(items){
-    console.log(items);
     // Let's get what is in our queue and add our objects
       // This way saves us the trouble of flattening
     var previousQueue = items.activeLinkQueue;
     var currentCategories = items.categories;
     toAddToQueue.forEach(function(urlObject){
       // urlObject looks like this = {time: time, url: url,  category: category}
-      console.log(urlObject,"This is within our updateActiveTabs should have periodicInterval")
       currentCategories = handleCategories(currentCategories,urlObject);
     })
     var newQueue = handleTiming(previousQueue,toAddToQueue,timing);
-    console.log(newQueue,'This is when we udpateOur Active Tabs')  
     chrome.alarms.create("activeTabsScheduledOpening" + timing.toString(), {"when": timing})
 
     var newCategories = currentCategories;
     storageArea.set({ "activeLinkQueue": newQueue });
-    console.log(newCategories,"Let's see if our updateActiveTabs works for categories")
     storageArea.set({ "categories": newCategories });
   });
 };
 
 var updateInputtedTabs = function(toAddToQueue){
   storageArea.get(["inputtedLinkQueue","categories"], function(items){
-    console.log(items);
     var previousQueue = items.inputtedLinkQueue;
     var currentCategories = items.categories;
     
@@ -133,18 +131,11 @@ var updateInputtedTabs = function(toAddToQueue){
 var openActiveLinkTabs = function(triggerTime,alarmName){
   
   storageArea.get("activeLinkQueue", function(activeLinkQueue){
-    console.log(activeLinkQueue)
     activeLinkQueue = activeLinkQueue.activeLinkQueue;
-    console.log(activeLinkQueue[triggerTime])
 
     var linksToOpen = activeLinkQueue[triggerTime];
     // I made the links nested gotta check if I should still be doing that.
-    var periodicInterval =  linksToOpen[0][0].periodicInterval;
-
-    console.log(linksToOpen);
-    console.log(linksToOpen[0][0],'first link should have a periodicInterval property');
-    console.log(periodicInterval,'This is the periodicInterval')
-    console.log("daily, weekly dailynoweekend none should be the options");
+    var periodicInterval =  linksToOpen[0].periodicInterval;
 
 
       linksToOpen.forEach(function(arrayOfTabs){
@@ -158,9 +149,9 @@ var openActiveLinkTabs = function(triggerTime,alarmName){
           });
         });
       });
+
+      console.log(activeLinkQueue)
       // Delete our alarm and update our ActiveLinkQueue
-      console.log(alarmName)
-      console.log(periodicInterval,'prior to our check');
       if (periodicInterval === "none" || !periodicInterval){
         clearTime(activeLinkQueue, alarmName, triggerTime, "activeLinkQueue")  
       } else {
@@ -234,9 +225,7 @@ var openInputtedLinkTabs = function(triggerTime,alarmName){
 
 chrome.runtime.onMessage.addListener(
   function(request,sender,sendResponse){
-    console.log('We are in background.js')
     if(request.message === "new_user"){
-      console.log(sender)
       var currentIdentity = request.currentIdentity
       storageArea.set({"activeLinkQueue": {}, "categories": { "uncategorized": [] },
                        "currentIdentity": currentIdentity, "inputtedLinkQueue": {},
@@ -248,7 +237,6 @@ chrome.runtime.onMessage.addListener(
         // If we get something at the same time  push into array
 
     if (request.message === "new_tabs"){
-      console.log(request.activeTabsArray,'our active tabs array should have periodicInterval');      
       var toAddToQueue = request.activeTabsArray;
       var timing = request.timing;
       updateActiveTabs(toAddToQueue,timing);
@@ -258,7 +246,6 @@ chrome.runtime.onMessage.addListener(
       // Inputted tabs are unordered, since they all want ot be opened at seperate times.
       // Since we haven't grouped them, tehn let's just add htem to a new windowId
       // If a windowId already exists add to that one until we get to 20
-      console.log("WE GOT A message to inputted tab")
       var toAddToQueue = request.activeTabsArray;
       updateInputtedTabs(toAddToQueue);
     }
@@ -269,7 +256,6 @@ chrome.runtime.onMessage.addListener(
   // If the trigger is in active Tab open a new window open all of those tabs in that window
 
 chrome.alarms.onAlarm.addListener(function(alarm){
-  console.log(alarm,"Please have data that I want")
   var triggerTime = alarm.scheduledTime,
       alarmName = alarm.name,
       activeTabsStringLength = "activeTabsScheduledOpening".length,
@@ -278,7 +264,6 @@ chrome.alarms.onAlarm.addListener(function(alarm){
       inputtedTabAlarm = alarmName.substring(0,inputtedTabsStringLength) == "inputtedTabsScheduledOpening";
 
   if(activeTabAlarm){
-    console.log(triggerTime)
     openActiveLinkTabs(triggerTime,alarmName)
   }
   else if(inputtedTabAlarm){

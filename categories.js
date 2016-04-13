@@ -22,8 +22,6 @@ $(document).ready(function(){
     '</label>',
     '<span class="secondary-content">Remove From Category <i class="material-icons removeFromCategory">delete</i> </span>',
     '</div>'
-
-
     ].join(' ')
 
     $('.switchNeeded' + nameCategoryNumber).append(HTMLtoAdd)
@@ -71,12 +69,12 @@ $(document).ready(function(){
       storageArea.set({ 'categories': categories });
 
     })
-
-
   })
 
   var addCategorySection = function(userCategoriesObj){
     var userCategoriesArray = Object.keys(userCategoriesObj);
+    console.log(userCategoriesObj,'User category object')
+    console.log(userCategoriesArray)
     userCategoriesArray.forEach(function(userCategory){
       nameCategoryNumber++;
       // We need to get a favicon and a url

@@ -23,7 +23,7 @@ $(document).ready(function(){
     });
   };
   
-  testIfNewUser();
+  // testIfNewUser();
 
 
   var getTitleFromUrl = function(currentUrl,cb){
@@ -186,10 +186,9 @@ $(document).ready(function(){
         
         // Bind the modalButtons
 
-         Materialize.toast('Tabs Saved', 2000) 
-        // chrome.windows.remove(currentWindowId);
-
+         Materialize.toast('Tabs Saved', 1000) 
         $('#schedulingModal').closeModal();
+        chrome.windows.remove(currentWindowId);
       })
 
       })
@@ -216,6 +215,13 @@ $(document).ready(function(){
   $("#categoriesViewButton").on('click',function(event){
     categoriesPage = chrome.extension.getURL("categories.html")
     chrome.tabs.create({'url': categoriesPage},function(tab){
+    })
+    event.preventDefault();
+  })
+
+  $("#alarmsViewButton").on('click',function(event){
+    alarmsPage = chrome.extension.getURL("manageAlarms.html")
+    chrome.tabs.create({'url': alarmsPage},function(tab){
     })
     event.preventDefault();
   })
