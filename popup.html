@@ -9,38 +9,12 @@
 </style>
   </head>
   <body>
-    <h4>Add a Link You want to be Reminded Of</h4>
-    <div class="row">
-       <form class="col s12" id="linksForm">
-        <div class="row">
-          <div class="input-field col s8" id="addMoreSection">
-            <input placeholder="Input Link" name=link1></input>
-            <input placeholder="When to Open? (Buttons Change Time Unit)" name=time1 type="number"></input>
-            <input placeholder="Add a Category" name="inputtedTabCategory1"></input>
 
-            <div class="row" name="timespancategory1" data-timespancategory="minutes">
-                <a class="waves-effect waves-light btn col s4 timeSpanChanger" data-indexnumber="1">Minutes</a>
-                <a class="waves-effect waves-light btn col s4 timeSpanChanger" data-indexnumber="1">Hours</a>
-                <a class="waves-effect waves-light btn col s4 timeSpanChanger" data-indexnumber="1">Days</a>
-            </div>
-          </div>
-        </div>
-        
-        <button type="submit" class="btn waves-effect waves-light" name="action" id="submitLinks">Submit
-          <i class="material-icons right"></i>
-        </button>
-       </form>
-     </div>
-     <div class="row">
-      <div class="col s12">
-        <button class="btn waves-effect waves-light" id="addMoreButton">Add More!</button>
-      </div>
-     </div>
-
+  <h4>Save and Close Your Active Tabs, Write down when you want them to open</h4>
      <div class="row">
       <div class="col s6">
        <input placeholder="Add a Category" name="activeTabCategory"></input>
-       <input placeholder="When to Open?" name=activeTabsTime type="number"></input>
+       <input placeholder="How long from now?" name=activeTabsTime type="number"></input>
        <div class="row" name="timespancategoryActiveTabs" data-timespancategory="minutes">
            <a class="waves-effect waves-light btn col s4 timeSpanChanger" data-indexnumber="ActiveTabs">Minutes</a>
            <a class="waves-effect waves-light btn col s4 timeSpanChanger" data-indexnumber="ActiveTabs">Hours</a>
@@ -58,6 +32,29 @@
          <button class="btn waves-effect waves-light" id="saveCurrentTabButton">Save Current Tab</button>
        </div>
      </div>
+
+      <div id="specificTimeHide">
+        <div class="row">
+          <div class="offset-s6 col s6">
+            <input placeholder="When To Open" id="inputtedTimeActiveAlarm"></input>
+            
+            <form action="#" id="todayOrTomorrowRadioButton">
+              <p>
+                <input name="group1" type="radio" id="test1" value="today" />
+                <label for="test1">Today</label>
+              </p>
+              <p>
+                <input name="group1" type="radio" id="test2" value="tomorrow" />
+                <label for="test2">Tomorrow</label>
+              </p>
+            </form>
+            <button class="btn waves-effect waves-light" id="inputtedTimeActiveAlarmButton">Save Tabs 2</button> 
+          </div>
+        </div>     
+      </div>
+        
+     
+
      <!-- <div class="row">
        <button class="btn waves-effect waves-light" id="testButton">Test NewTabs Message</button>
      </div> -->
@@ -84,6 +81,43 @@
        </div>
      </div>
      <button id="clearAllPeriodicAlarms" class="red darken-4 btn">Clear All Periodic Alarms</button>
+
+     <div class="row">
+      <button id="addInputSection" class="red darken-4 btn col s3 showSection" data-hidden="true" data-section="#inputtedLinkHide">Input Links</button>
+      <button id="addSpecificSection" class="red darken-4 btn col s3 showSection" data-hidden="true" data-section="#specificTimeHide">Specific Time</button>
+     </div>
+     
+
+     <div id="inputtedLinkHide">
+        <h4>Add a Link You want to be Reminded Of</h4>
+       <div class="row">
+          <form class="col s12" id="linksForm">
+           <div class="row">
+             <div class="input-field col s8" id="addMoreSection">
+               <input placeholder="Input Link" name=link1></input>
+               <input placeholder="When to Open? (Buttons Change Time Unit)" name=time1 type="number"></input>
+               <input placeholder="Add a Category" name="inputtedTabCategory1"></input>
+
+               <div class="row" name="timespancategory1" data-timespancategory="minutes">
+                   <a class="waves-effect waves-light btn col s4 timeSpanChanger" data-indexnumber="1">Minutes</a>
+                   <a class="waves-effect waves-light btn col s4 timeSpanChanger" data-indexnumber="1">Hours</a>
+                   <a class="waves-effect waves-light btn col s4 timeSpanChanger" data-indexnumber="1">Days</a>
+               </div>
+             </div>
+           </div>
+           
+           <button type="submit" class="btn waves-effect waves-light" name="action" id="submitLinks">Submit
+             <i class="material-icons right"></i>
+           </button>
+          </form>
+        </div>
+        <div class="row">
+         <div class="col s12">
+           <button class="btn waves-effect waves-light" id="addMoreButton">Add More!</button>
+         </div>
+        </div>
+    </div>  
+
              
      <script src="jquery-2.2.1.min.js"></script>
      <script src="materialize.min.js"></script>

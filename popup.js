@@ -12,6 +12,26 @@ $(document).ready(function(){
   var currentIdentity;
   var periodicInterval;
 
+  $('#inputtedLinkHide').children().hide();
+  $('#specificTimeHide').children().hide();
+
+  $('.showSection').on('click', function(){
+    var sectionToReveal = $(this).data('section');
+    var isHidden = $(this).data('hidden');
+    
+    $(sectionToReveal).children().show();  
+    console.log( isHidden === true )
+
+    if( isHidden === true ){
+      $(sectionToReveal).children().show();  
+      $(this).data('hidden', false)
+    } else {
+      $(sectionToReveal).children().hide();  
+      $(this).data('hidden', true)
+    }
+    
+  })
+
   var testIfNewUser = function(){
     chrome.identity.getProfileUserInfo(function(userInfo){
       currentIdentity = userInfo.id;
@@ -23,8 +43,7 @@ $(document).ready(function(){
     });
   };
   
-  // testIfNewUser();
-
+  
 
   var getTitleFromUrl = function(currentUrl,cb){
     // For this we need to parse out the http:// part
@@ -204,13 +223,6 @@ $(document).ready(function(){
   //   return token
   // })
 
-  // $('#testButton').on('click',function(event){
-  //   var activeTabsArray = [{'time': Date.now() + 3000, 'url': 'http://www.reddit.com', 'category': 'distraction'},
-  //                          {'time': Date.now() + 3000, 'url': 'http://www.reddit.com', 'category': 'uncategorized'}
-  //                         ]
-  //   chrome.runtime.sendMessage({"message": "new_tabs", activeTabsArray: activeTabsArray, "timing": Date.now() + 3000 });
-  //   event.preventDefault();
-  // })
 
   $("#categoriesViewButton").on('click',function(event){
     categoriesPage = chrome.extension.getURL("categories.html")
@@ -224,6 +236,15 @@ $(document).ready(function(){
     chrome.tabs.create({'url': alarmsPage},function(tab){
     })
     event.preventDefault();
+  })
+
+  $('#inputtedTimeActiveAlarmButton').on('click',function(event){
+    var todayOrTomorrow = $('input[name=group1]:checked', '#todayOrTomorrowRadioButton').val();
+
+    var time = $('#inputtedTimeActiveAlarm').val();
+    // Slice the first 4 elements
+
+    // So far this works fine
   })
 
   $("#clearAllPeriodicAlarms").on('click', function(event){
@@ -243,11 +264,6 @@ $(document).ready(function(){
   })
   // Add to Timed Tabs
 
-  
-  // This should get fromStorageArea
-  storageArea.get('identity', function(items){
-  })
-
 
   function update() {
     var timeFlag = timeFlag = $('div[name=timespancategoryActiveTabs]' ).data('timespancategory');
@@ -260,7 +276,7 @@ $(document).ready(function(){
 
   setInterval(update, 1000);
 
-  $('')
+  
 
 
   
