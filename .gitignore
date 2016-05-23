@@ -12,6 +12,5 @@ test/mocha.css/
 #chai
 test/chai.js
 
-#manageAlarms and periodicScheduler not ready for production
-manageAlarms.html
-periodicScheduler.html
+#features not ready for proudction
+notReady/
