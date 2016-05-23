@@ -1,7 +1,8 @@
 {
   "manifest_version": 2,
   "name": "Chrome Tab Scheduler",
-  "version": "0.1",
+  "short_name": "tabScheduler",
+  "version": "0.0.1",
   "permissions": [
     "activeTab",
     "storage",
@@ -19,7 +20,7 @@
   },
   "content_scripts": [ {
       "matches": [ "<all_urls>" ],
-      "js": ["jquery-2.2.1.min.js"]
+      "js": ["js/jquery-2.2.1.min.js"]
     } ],
   "browser_action": {
     "default_icon": "icon.png",

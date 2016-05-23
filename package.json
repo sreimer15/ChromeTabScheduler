@@ -1,0 +1,25 @@
+{
+  "name": "chrometabscheduler",
+  "version": "1.0.0",
+  "description": "Chrome Extension to Schedule Tabs to Open &amp; Close",
+  "main": "background.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sreimer15/ChromeTabScheduler.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sreimer15/ChromeTabScheduler/issues"
+  },
+  "homepage": "https://github.com/sreimer15/ChromeTabScheduler#readme",
+  "devDependencies": {
+    "webpack": "^1.13.0"
+  }
+}
