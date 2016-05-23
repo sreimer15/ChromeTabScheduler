@@ -18,10 +18,13 @@ $(document).ready(function(){
     var utils = {
 
         testIfNewUser : function(){
+            console.log('This is the beginning of the testIfNewUser function')
             chrome.identity.getProfileUserInfo(function(userInfo){
                 currentIdentity = userInfo.id;
-                storageArea.get(currentIdentity, function(items){
-                    if (!items.keys) {
+                console.log(userInfo.id, 'let us see if this is a new user every time which woudl be bad')
+                storageArea.get("currentIdentity", function(items){
+                    // If there is no currentIdentity set yet
+                    if (!items.currentIdentity) {
                         chrome.runtime.sendMessage({"message": "new_user", "currentIdentity": currentIdentity });
                     }
                 })
@@ -231,7 +234,7 @@ $(document).ready(function(){
 
         utils.activateBindingFunctions(events);
     }
-
+    utils.testIfNewUser();
     activateForms();
     sendToNewPages();
     handleClickEvents();

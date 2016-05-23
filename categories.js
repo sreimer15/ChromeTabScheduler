@@ -36,7 +36,7 @@ $(document).ready(function(){
 				if(switchFlag){
 					var inputToChange = $(this).find('input');
 					inputToChange.prop('checked', true);
-				};
+				}
 			});
 		},
 
@@ -136,8 +136,7 @@ $(document).ready(function(){
 			        
 			        });
 				});
-			};
-
+			}
 		}
 
 		categoryUtils.activateBindingFunctions(bindingFunctions)
@@ -145,11 +144,12 @@ $(document).ready(function(){
 	}
 
 
-	storageArea.get(null,function(items){
-		userCategoriesObj = items.categories;
+	storageArea.get(null ,function(items){
+		var userCategoriesObj = items.categories;
 		// storageArea.set({ "categories": newCategories });
 		  // On clicking a link, let us turn property on or off
 		// Add to Dom
+		console.log(userCategoriesObj,"this is the userCategories obj that can't be converted for soem reason")
 		categoryUtils.addCategorySection(userCategoriesObj);
 	})
 
