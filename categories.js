@@ -52,7 +52,7 @@ $(document).ready(function(){
 			    var arrayOfLinks = userCategoriesObj[userCategory];
 			    var container = [
 			        '<div class="col s6 container">',
-			        '<h3 name=nameCategory' + nameCategoryNumber + '>'+ userCategory.toProperCase() + '</h3>',
+			        '<h3 name=nameCategory' + nameCategoryNumber + ' data-originalName=' + userCategory + '>'+ userCategory.toProperCase() + '</h3>',
 			        '<ol class="collection" name=collection' + nameCategoryNumber + '>',
 			        '</ol>',
 			        '</div>'
@@ -111,17 +111,16 @@ $(document).ready(function(){
 			        // New Value is a boolean, true for Read False for Unread
 			    
 			        var dataCategoryNumber = $(this).data('categorynumber')
-			        var parentCategory = $('h3[name=nameCategory' + dataCategoryNumber + ']').text();
-			    
+			        var parentCategory = $('h3[name=nameCategory' + dataCategoryNumber + ']').data('originalname');
+
 			        var thisURL = $(this).parents("a").attr("href");
 			    
 			        storageArea.get('categories',function(categories){
 			            categories = categories.categories;
 			            var oldArrayOfLinks = categories[parentCategory];
 			            var indexOfMatch;
-			        
+			        	
 			            var linkObjToUpdate = oldArrayOfLinks.find(function(element,index){
-			                
 			                if (element.url === thisURL ){
 			                indexOfMatch = index;
 			                return true;
@@ -129,9 +128,6 @@ $(document).ready(function(){
 			            })
 			            // Update LinkObj, because they are held by reference our categories obj is now updated
 			            linkObjToUpdate.read = newValue;
-			        
-			            // oldArrayOfLinks[indexOfMatch] = linkObjToUpdate;
-			            // var updatedObject = categories[parentCategory];
 			            storageArea.set({ 'categories': categories });
 			        
 			        });
@@ -150,7 +146,9 @@ $(document).ready(function(){
 		  // On clicking a link, let us turn property on or off
 		// Add to Dom
 		console.log(userCategoriesObj,"this is the userCategories obj that can't be converted for soem reason")
+		clickFunctionality();
 		categoryUtils.addCategorySection(userCategoriesObj);
+
 	})
 
 });
