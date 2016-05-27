@@ -243,9 +243,9 @@ chrome.runtime.onMessage.addListener(function(request,sender,sendResponse){
     // Let's have an object with times as keys and an array as the value
     // The array is an array of arrays, the inner arrays are the collection of tabs 
     // If we get something at the same time  push into array
-
+    var toAddtoQueue;
     if (request.message === "new_tabs"){
-        var toAddToQueue = request.activeTabsArray;
+        toAddToQueue = request.activeTabsArray;
         var timing = request.timing;        
         handleTabInteractions.updateActiveTabs(toAddToQueue,timing);
     }
@@ -254,7 +254,7 @@ chrome.runtime.onMessage.addListener(function(request,sender,sendResponse){
         // Inputted tabs are unordered, since they all want ot be opened at seperate times.
         // Since we haven't grouped them, tehn let's just add htem to a new windowId
         // If a windowId already exists add to that one until we get to 20
-        var toAddToQueue = request.activeTabsArray;
+        toAddToQueue = request.activeTabsArray;
         handleTabInteractions.updateInputtedTabs(toAddToQueue);
     }
 });
