@@ -8,7 +8,7 @@ $(document).ready(function(){
   {
 	return this.toLowerCase().replace(/^(.)|\s(.)/g, 
 		function($1) { return $1.toUpperCase(); });
-}
+};
 
 
 	var categoryUtils = {
@@ -25,10 +25,10 @@ $(document).ready(function(){
 						'</label>',
 						'<span class="secondary-content">Remove From Category <i class="material-icons removeFromCategory">delete</i> </span>',
 						'</div>'
-			].join(' ')
+			].join(' ');
 
-			$('.switchNeeded' + nameCategoryNumber).append(HTMLtoAdd)
-			var linksToIterate = $('.switchNeeded' + nameCategoryNumber)
+			$('.switchNeeded' + nameCategoryNumber).append(HTMLtoAdd);
+			var linksToIterate = $('.switchNeeded' + nameCategoryNumber);
 			// Goes through all of the links and sees if they have been read or not and updates
 			  // the display
 			linksToIterate.each(function(index){
@@ -42,7 +42,7 @@ $(document).ready(function(){
 
 		addCategorySection : function(userCategoriesObj) {
 			var userCategoriesArray = Object.keys(userCategoriesObj);
-			console.log(userCategoriesObj,'User category object')
+			console.log(userCategoriesObj,'User category object');
 
 			userCategoriesArray.forEach(function(userCategory){
 			    nameCategoryNumber++;
@@ -83,14 +83,14 @@ $(document).ready(function(){
 			            // Worst Case Scenario we create a linkNumber
 			            '<span class="switchNeeded'+ nameCategoryNumber + '" data-read=' + read + '>' + title + ' </a> </span>',
 			            '</li>'
-			        ]
+			        ];
 
 			        var categoryHTML = categorySection.join(' ');
 			        $('ol[name=collection' + nameCategoryNumber + ']').append(categoryHTML);
-			    })
+			    });
 
 			    categoryUtils.addSwitch(nameCategoryNumber);
-			})
+			});
 		},
 
 		activateBindingFunctions: function(bindingFunctions) {
@@ -98,7 +98,7 @@ $(document).ready(function(){
 		        bindingFunctions[key]();
 		    }
 		}
-	}
+	};
 
 	var clickFunctionality = function(){
 
@@ -107,10 +107,10 @@ $(document).ready(function(){
 			markAsReadUnread: function(){
 			    $(document).on('click', 'input[type=checkbox]', function(){
 			        // Probably gonna have to get a name
-			        var newValue = $(this).prop('checked')
+			        var newValue = $(this).prop('checked');
 			        // New Value is a boolean, true for Read False for Unread
 			    
-			        var dataCategoryNumber = $(this).data('categorynumber')
+			        var dataCategoryNumber = $(this).data('categorynumber');
 			        var parentCategory = $('h3[name=nameCategory' + dataCategoryNumber + ']').data('originalname');
 
 			        var thisURL = $(this).parents("a").attr("href");
@@ -125,7 +125,7 @@ $(document).ready(function(){
 			                indexOfMatch = index;
 			                return true;
 			                }
-			            })
+			            });
 			            // Update LinkObj, because they are held by reference our categories obj is now updated
 			            linkObjToUpdate.read = newValue;
 			            storageArea.set({ 'categories': categories });
@@ -133,11 +133,11 @@ $(document).ready(function(){
 			        });
 				});
 			}
-		}
+		};
 
-		categoryUtils.activateBindingFunctions(bindingFunctions)
+		categoryUtils.activateBindingFunctions(bindingFunctions);
 		
-	}
+	};
 
 
 	storageArea.get(null ,function(items){
@@ -145,10 +145,10 @@ $(document).ready(function(){
 		// storageArea.set({ "categories": newCategories });
 		  // On clicking a link, let us turn property on or off
 		// Add to Dom
-		console.log(userCategoriesObj,"this is the userCategories obj that can't be converted for soem reason")
+		console.log(userCategoriesObj,"this is the userCategories obj that can't be converted for soem reason");
 		clickFunctionality();
 		categoryUtils.addCategorySection(userCategoriesObj);
 
-	})
+	});
 
 });

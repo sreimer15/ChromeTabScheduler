@@ -153,9 +153,10 @@ $(document).ready(function(){
         var events = {
 
             getCurrentTabs : function(){
-                $('#getCurrentTabsButton').on('click', function(event){
+                $('.getCurrentTabsButton').on('click', function(event){
                     // get current window in order to close later
                     var currentWindowId;
+                    var originalButtonId = this.id;
                     
                     chrome.windows.getCurrent({},function(currentWindow){
                         var activeTabsArray = [];
@@ -169,7 +170,7 @@ $(document).ready(function(){
                             // Probably want a toast here
                             // get tabs in order to save them
                             chrome.tabs.query({currentWindow: true}, function(tabs){
-                                var timeFlag = timeFlag = $('div[name=timespancategoryActiveTabs]' ).data('timespancategory');
+                                var timeFlag = $('div[name=timespancategoryActiveTabs]' ).data('timespancategory');
                                 var tabTime = $('input[name=activeTabsTime]').val() * timeObject[timeFlag] + Date.now() || 3000;
 
                                 tabs.forEach(function(tab){
@@ -177,7 +178,7 @@ $(document).ready(function(){
 
                                     var currentObj = {'url': tab.url, time: tabTime, category: tabCategory, 'title': tab.title, 'periodicInterval': periodicInterval };
                                     activeTabsArray.push(currentObj);
-                                })        
+                                });
                                 // {time: time, url: url,  category: category}
                                     // add an auto fill with categories that already exist
 
@@ -190,12 +191,15 @@ $(document).ready(function(){
                             
                             // Bind the modalButtons
 
-                             Materialize.toast('Tabs Saved', 1000) 
+                            Materialize.toast('Tabs Saved', 1000) ;
                             $('#schedulingModal').closeModal();
-                            chrome.windows.remove(currentWindowId);
-                        })
 
-                        })
+                            if (originalButtonId === 'saveAndClose') {
+                            chrome.windows.remove(currentWindowId);
+                            }
+                        });
+
+                        });
                     });
                     event.preventDefault();
                 });
