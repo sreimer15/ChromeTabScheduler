@@ -23,7 +23,7 @@ $(document).ready(function(){
 						'<span class="lever"></span>',
 						'Read',
 						'</label>',
-						'<span class="secondary-content">Remove From Category <i class="material-icons removeFromCategory">delete</i> </span>',
+						'<span class="secondary-content removeFromCategory">Remove From Category <i class="material-icons">delete</i> </span>',
 						'</div>'
 			].join(' ');
 
@@ -62,7 +62,7 @@ $(document).ready(function(){
 
 			    arrayOfLinks.forEach(function(linkObj){
 			        // We can use chrome.tabs.query
-			        var url = linkObj.url
+			        var url = linkObj.url;
 			        // replace http with https
 			        url = url.replace(/^http:\/\//i, 'https://');
 
@@ -93,6 +93,14 @@ $(document).ready(function(){
 			});
 		},
 
+		findLinkObjFromLink: function(oldArrayOfLinks, thisUrl){
+			return oldArrayOfLinks.find(function(element){
+			    if (element.url === thisURL ){
+			    	return true;
+			    }
+			});
+		},
+
 		activateBindingFunctions: function(bindingFunctions) {
 		    for (var key in bindingFunctions ) {
 		        bindingFunctions[key]();
@@ -118,19 +126,24 @@ $(document).ready(function(){
 			        storageArea.get('categories',function(categories){
 			            categories = categories.categories;
 			            var oldArrayOfLinks = categories[parentCategory];
-			            var indexOfMatch;
 			        	
-			            var linkObjToUpdate = oldArrayOfLinks.find(function(element,index){
-			                if (element.url === thisURL ){
-			                indexOfMatch = index;
-			                return true;
-			                }
-			            });
+			            var linkObjToUpdate = categoryUtils.findLinkObjFromLink(oldArrayOfLinks,thisUrl);
 			            // Update LinkObj, because they are held by reference our categories obj is now updated
 			            linkObjToUpdate.read = newValue;
 			            storageArea.set({ 'categories': categories });
 			        
 			        });
+				});
+			},
+
+			removeFromCategory: function(){
+				$(document).on('click', '.removeFromCategory', function(){
+					storageArea.get('categories', function(categories){
+						categories = categories.categories;
+						// We need to get parent Category
+						var oldArrayOfLinks = categories[parentCategory];
+						var linkObjToUpdate = categoryUtils.findLinkObjFromLink(oldArrayOfLinks,thisUrl);
+					});
 				});
 			}
 		};

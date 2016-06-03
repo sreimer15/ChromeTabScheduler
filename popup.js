@@ -8,7 +8,7 @@ $(document).ready(function(){
                     'minutes': 1000 * 60,
                     'hours': 1000 * 60 * 60,
                     'days': 1000 * 60 * 60 * 24
-                    }
+                    };
     var currentIdentity;
     var periodicInterval;
 
@@ -18,23 +18,20 @@ $(document).ready(function(){
     var utils = {
 
         testIfNewUser : function(){
-            console.log('This is the beginning of the testIfNewUser function')
             chrome.identity.getProfileUserInfo(function(userInfo){
                 currentIdentity = userInfo.id;
-                console.log(userInfo.id, 'let us see if this is a new user every time which woudl be bad')
                 storageArea.get("currentIdentity", function(items){
                     // If there is no currentIdentity set yet
                     if (!items.currentIdentity) {
                         chrome.runtime.sendMessage({"message": "new_user", "currentIdentity": currentIdentity });
                     }
-                })
+                });
             });
         },
         
         update: function() {
-            var timeFlag = timeFlag = $('div[name=timespancategoryActiveTabs]' ).data('timespancategory');
+            var timeFlag = $('div[name=timespancategoryActiveTabs]' ).data('timespancategory');
             var tabTime = $('input[name=activeTabsTime]').val() * timeObject[timeFlag] + Date.now() || 3000;
-            console.log(tabTime);
             $('#clock').html( moment(tabTime).format('MMMM Do YYYY, h:mm:ss A'));
         },
 
@@ -43,7 +40,7 @@ $(document).ready(function(){
                 bindingFunctions[key]();
             }
         }
-    }
+    };
 
     var activateForms =  function(){
 
