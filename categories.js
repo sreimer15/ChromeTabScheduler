@@ -40,6 +40,29 @@ $(document).ready(function(){
 			});
 		},
 
+		addUrlItem: function(linkObj, nameCategoryNumber){
+			var url = linkObj.url;
+			url = url.replace(/^http:\/\//i, 'https://');
+			var title = linkObj.title;
+			var read = linkObj.read;
+
+			// Gonna have to differentiate switchNeeded
+			// WE NEED HTTPS://WWW.REDDIT.COM
+
+			var faviconQueryString = '<img src="http://www.google.com/s2/favicons?domain=' + url + '">';
+			var categorySection = [
+				    '<li class="collection-item">',
+				    '<a href="'+ url + '">',
+				    faviconQueryString,
+				    // Need to get parent of input which should be span
+				    // Then parent of span which should be a tag 
+				    // Worst Case Scenario we create a linkNumber
+				    '<span class="switchNeeded'+ nameCategoryNumber + '" data-read=' + read + '>' + title + ' </a> </span>',
+				    '</li>'
+				    ].join(' ');
+			$('ol[name=collection' + nameCategoryNumber + ']').append(categorySection);
+		},
+
 		addCategorySection : function(userCategoriesObj) {
 			var userCategoriesArray = Object.keys(userCategoriesObj);
 			console.log(userCategoriesObj,'User category object');
@@ -52,41 +75,20 @@ $(document).ready(function(){
 			    var arrayOfLinks = userCategoriesObj[userCategory];
 			    var container = [
 			        '<div class="col s6 container">',
-			        '<h3 name=nameCategory' + nameCategoryNumber + ' data-originalName=' + userCategory + '>'+ userCategory.toProperCase() + '</h3>',
-			        '<ol class="collection" name=collection' + nameCategoryNumber + '>',
-			        '</ol>',
+				        '<h3 name=nameCategory' + nameCategoryNumber + ' data-originalName=' + userCategory + '>'+ userCategory.toProperCase() + '</h3>',
+				        '<div class="row container">',
+				        	'<input placeholder="input link here" class="col s5 inputNewLink"></input>',
+				        	'<button class="col offset-s1 s6 btn waves-effect waves-light addNewLink"> <span class="buttonText">Add New Link! </span> <i class="material-icons iconPos"> library_add </i></button>',
+				        '</div>',
+				        '<ol class="collection" data-categorynumber=' + nameCategoryNumber + ' name=collection' + nameCategoryNumber + '>',
+				        '</ol>',
 			        '</div>'
 			    ].join(' ');
 
 			    $('#categoriesMaster').append(container);
 
 			    arrayOfLinks.forEach(function(linkObj){
-			        // We can use chrome.tabs.query
-			        var url = linkObj.url;
-			        // replace http with https
-			        url = url.replace(/^http:\/\//i, 'https://');
-
-
-			        var title = linkObj.title;
-			        var read = linkObj.read;
-
-			        // Gonna have to differentiate switchNeeded
-			        // WE NEED HTTPS://WWW.REDDIT.COM
-
-			        var faviconQueryString = '<img src="http://www.google.com/s2/favicons?domain=' + url + '">';
-			        var categorySection = [
-			            '<li class="collection-item">',
-			            '<a href="'+ url + '">',
-			            faviconQueryString,
-			            // Need to get parent of input which should be span
-			            // Then parent of span which should be a tag 
-			            // Worst Case Scenario we create a linkNumber
-			            '<span class="switchNeeded'+ nameCategoryNumber + '" data-read=' + read + '>' + title + ' </a> </span>',
-			            '</li>'
-			        ];
-
-			        var categoryHTML = categorySection.join(' ');
-			        $('ol[name=collection' + nameCategoryNumber + ']').append(categoryHTML);
+			    	categoryUtils.addUrlItem(linkObj, nameCategoryNumber)
 			    });
 
 			    categoryUtils.addSwitch(nameCategoryNumber);
@@ -145,6 +147,27 @@ $(document).ready(function(){
 						var linkObjToUpdate = categoryUtils.findLinkObjFromLink(oldArrayOfLinks,thisUrl);
 					});
 				});
+			},
+
+			addNewLink: function(){
+				$(document).on('click','.addNewLink', function(){
+					var url = $(this).prev('.inputNewLink').val();
+					var newLinkObj = {'url': url, 'title': 'we will get this from async process', ' read': false };
+					var nameCategoryNumber = $(this).parent().next('ol').data('categorynumber');
+					
+					categoryUtils.addUrlItem(newLinkObj, nameCategoryNumber)
+					// We gotta add the switch
+
+					var parentCategory = $('h3[name=nameCategory' + nameCategoryNumber + ']').data('originalname');
+					storageArea.get('categories', function(categories){
+						categories = categories.categories;
+						var oldArrayOfLinks = categories[parentCategory];
+						oldArrayOfLinks.push(newLinkObj)
+
+						storageArea.set({'categories': categories});
+					})
+
+				})
 			}
 		};
 

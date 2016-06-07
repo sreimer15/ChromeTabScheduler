@@ -148,15 +148,15 @@ var handleTabInteractions = {
                 backgroundUtils.clearTime(activeLinkQueue, alarmName, triggerTime, "activeLinkQueue");
 
                 var newTime = backgroundUtils.periodicTimeConverter(triggerTime,periodicInterval);
-                console.log(newTime,"This is the new time after our periodic converter")
+                
                 chrome.alarms.create("activeTabsScheduledOpening" + newTime.toString(), {"when": newTime});
                 var newQueue = backgroundUtils.handleTiming(activeLinkQueue,linksToOpen,newTime);
                 // We are adding the same set of tabs to the activeLinkQueue at the new time
                 storageArea.set("activeLinkQueue": newQueue);
                 // clear old tabs
                 backgroundUtils.clearTime(activeLinkQueue, alarmName, triggerTime, "activeLinkQueue");
+                console.log(newTime,"This is the new time after our periodic converter")
                 
-
             }
         });
     },
