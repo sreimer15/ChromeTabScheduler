@@ -4,8 +4,20 @@ $(document).ready(function(){
   var userCategories;
   var nameCategoryNumber = 0;
 
-  String.prototype.toProperCase = function()
-  {
+  var errorMessage = [
+	'<div class="row">',
+        '<div class="col s12 m6">',
+          '<div class="card blue-grey darken-1">',
+            '<div class="card-content white-text">',
+              '<span class="card-title">No Categories Yet!</span>',
+              "<p>Sorry! You haven't put in any categories yet</p>",
+            '</div>',
+          '</div>',
+        '</div>',
+    '</div>'
+  ].join(' ');
+
+  String.prototype.toProperCase = function()  {
 	return this.toLowerCase().replace(/^(.)|\s(.)/g, 
 		function($1) { return $1.toUpperCase(); });
 };
@@ -64,7 +76,12 @@ $(document).ready(function(){
 		},
 
 		addCategorySection : function(userCategoriesObj) {
+			if (!userCategoriesObj){
+				$('body').html(errorMessage);
+				return
+			}
 			var userCategoriesArray = Object.keys(userCategoriesObj);
+			
 			console.log(userCategoriesObj,'User category object');
 
 			userCategoriesArray.forEach(function(userCategory){
@@ -183,6 +200,7 @@ $(document).ready(function(){
 		// Add to Dom
 		console.log(userCategoriesObj,"this is the userCategories obj that can't be converted for soem reason");
 		clickFunctionality();
+		console.log(items,"This is the items which should have a categories")
 		categoryUtils.addCategorySection(userCategoriesObj);
 
 	});

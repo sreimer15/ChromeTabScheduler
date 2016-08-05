@@ -4,7 +4,18 @@ $(document).ready(function(){
   var userAlarms;
   var nameAlarmNumber = 0;
 
-
+  var errorMessage = [
+	'<div class="row">',
+        '<div class="col s12 m6">',
+          '<div class="card blue-grey darken-1">',
+            '<div class="card-content white-text">',
+              '<span class="card-title">No Alarms Yet!</span>',
+              "<p>Sorry! You haven't put in any Alarms yet</p>",
+            '</div>',
+          '</div>',
+        '</div>',
+    '</div>'
+  ].join(' ');
 
   function addAlarmsSection(activeLinkAlarmsObj,inputtedLinkAlarmsObj){
     var activeLinkAlarms = Object.keys(activeLinkAlarmsObj);
@@ -52,7 +63,10 @@ $(document).ready(function(){
   storageArea.get(null,function(items){
     // Need to go to our active and inputted Link Queue
     console.log(items,'These are all the items');
-
+    if (!items.activeLinkQueue && !items.inputtedLinkQueue){
+        $('body').html(errorMessage);
+        return
+    }    
     activeLinkAlarmsObj = items.activeLinkQueue;
     inputtedLinkAlarmsObj = items.inputtedLinkQueue;
     console.log('activeLinkAlarmsObj',activeLinkAlarmsObj)
