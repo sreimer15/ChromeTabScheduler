@@ -30,7 +30,7 @@ $(document).ready(function(){
         },
         
         update: function() {
-            var timeFlag = $('div[name=timespancategoryActiveTabs]' ).data('timespancategory');
+            var timeFlag = $('ul[name=timespancategoryActiveTabs]' ).data('timespancategory');
             var tabTime = $('input[name=activeTabsTime]').val() * timeObject[timeFlag] + Date.now() || 3000;
             $('#clock').html( moment(tabTime).format('MMMM Do YYYY, h:mm:ss A'));
         },
@@ -226,7 +226,7 @@ $(document).ready(function(){
                     // Find the exact link to change
                     var dataIndexNumber = $(this).data('indexnumber');
                     // Update link's time category
-                    $('div[name=timespancategory' + dataIndexNumber + ']' ).data('timespancategory', timeSpanSelector)
+                    $('ul[name=timespancategory' + dataIndexNumber + ']' ).data('timespancategory', timeSpanSelector)
                     event.preventDefault();
                 })
             }

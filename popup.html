@@ -5,6 +5,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/css/materialize.min.css">
     <style type="text/css"> .btn:focus:active{
       background: red;
+  } .space-large{
+      height: 32px;
   }
 </style>
 </head>
@@ -16,11 +18,20 @@
     <div class="col s6">
         <input placeholder="Add a Category" name="activeTabCategory"></input>
         <input placeholder="How long from now?" name=activeTabsTime type="number"></input>
-        <div class="row" name="timespancategoryActiveTabs" data-timespancategory="minutes">
-            <a class="waves-effect waves-light btn col s4 timeSpanChanger" data-indexnumber="ActiveTabs">Minutes</a>
-            <a class="waves-effect waves-light btn col s4 timeSpanChanger" data-indexnumber="ActiveTabs">Hours</a>
-            <a class="waves-effect waves-light btn col s4 timeSpanChanger" data-indexnumber="ActiveTabs">Days</a>
-        </div>
+        <a class='dropdown-button btn'  href='#' data-activates='timeCategoryDropdown' data-beloworigin="true">Time Category</a>
+        <ul id="timeCategoryDropdown" class="row dropdown-content" name="timespancategoryActiveTabs" data-timespancategory="minutes">
+            <li>
+                <a class="timeSpanChanger" data-indexnumber="ActiveTabs">Minutes</a>
+            </li>
+            <li class="divider"></li>
+            <li>
+                <a class="timeSpanChanger" data-indexnumber="ActiveTabs">Hours</a>
+            </li>
+            <li class="divider"></li>
+            <li>
+                <a class="timeSpanChanger" data-indexnumber="ActiveTabs">Days</a>
+            </li>
+        </ul>
     </div>
     <div class="col s6">
         <button class="btn waves-effect waves-light getCurrentTabsButton">Save Tabs</button>
@@ -29,6 +40,8 @@
     </div>
 </div>
 
+<div class="space-large"></div>
+<div class="space-large"></div>
 <div class="row">
     <button class="btn waves-effect waves-light" id="categoriesViewButton">Manage Categories</button>
     <button class="btn waves-effect waves-light" id="alarmsViewButton">Manage Alarms</button>
@@ -51,6 +64,11 @@
         </div>
     </div>
 </div>
+
+<div class="space-large"></div>
+<div class="space-large"></div>
+<div class="space-large"></div>
+
 
 <script src="js/jquery-2.2.1.min.js"></script>
 <script src="js/materialize.min.js"></script>
