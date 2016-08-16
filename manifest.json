@@ -5,7 +5,8 @@
                 "<all_urls>"
             ], 
             "js": [
-                "js/jquery-2.2.1.min.js"
+                "js/jquery-2.2.1.min.js",
+                "js/lolliclock.js"
             ]
         }
     ], 

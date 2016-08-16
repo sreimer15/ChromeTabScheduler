@@ -12,6 +12,13 @@ $(document).ready(function(){
     var currentIdentity;
     var periodicInterval;
 
+    $('#pick-a-time').lolliclock({autoclose:true});
+
+    $('.datepicker').pickadate({
+        selectMonths: true, // Creates a dropdown to control month
+        selectYears: 15 // Creates a dropdown of 15 years to control year
+    });
+
     $('#inputtedLinkHide').children().hide();
     $('#specificTimeHide').children().hide();
 
@@ -56,7 +63,7 @@ $(document).ready(function(){
                     // Let's get formData from all Links including time, into an array
                     for (var i = 1; i <= currentNum; i++) {
                         // Get the appropriate data from our input tags
-                        var timeFlag         = $('div[name=timespancategory' + i.toString() + ']' ).data('timespancategory'),
+                        var timeFlag         = $('ul[name=timespancategory' + i.toString() + ']' ).data('timespancategory'),
                                 currentCategory  = $('input[name=inputtedTabCategory' + i.toString() + ']').val() || "uncategorized",
                                 currentTime      = $('input[name=time' + i.toString() + ']').val() * timeObject[timeFlag] + Date.now(),
                                 currentUrl       = $('input[name=link' + i.toString() + ']').val();
@@ -148,7 +155,65 @@ $(document).ready(function(){
         // })
 
         var events = {
+            getInputtedTabs: function() {
+                // <button class="red darken-4 btn getCurrentTabsButton" id="saveAndClose">Save and Close Tabs</button>
+                $('#saveAndCloseInputted').on('click', function(event){
+                    var currentWindowId;
+                    var originalButtonId = this.id;
 
+                   chrome.windows.getCurrent({},function(currentWindow){
+                        var activeTabsArray = [];
+                        currentWindowId = currentWindow.id;
+                        
+                        $('#schedulingModal').openModal();
+
+                        $(".modalButton").on('click',function(event){
+                            periodicInterval = $(this).data('interval');
+
+                            // Probably want a toast here
+                            // get tabs in order to save them
+                            chrome.tabs.query({currentWindow: true}, function(tabs){
+                                // gotta get the appropriate data from our inputs
+                                // var dateInFuture = $('input[name=inputtedSpecificDate]').val()
+                                // console.log(dateInFuture,"What does the date in the future come out as")
+                                var timeOnThatDate = $('input[name=inputtedSpecificTime]').val()
+                                console.log(timeOnThatDate,"What does this timeOnThatDate come out as")
+
+                                var tabTime = $('input[name=activeTabsTime]').val() + Date.now() || 3000;
+
+
+
+                                tabs.forEach(function(tab){
+                                    var tabCategory = $('input[name=activeTabCategory]').val() || 'uncategorized';
+
+                                    var currentObj = {'url': tab.url, time: tabTime, category: tabCategory, 'title': tab.title, 'periodicInterval': periodicInterval };
+                                    activeTabsArray.push(currentObj);
+                                });
+                                // {time: time, url: url,  category: category}
+                                    // add an auto fill with categories that already exist
+
+                                // Send message to our background
+                                chrome.runtime.sendMessage({"message": "new_tabs", activeTabsArray: activeTabsArray, "timing": tabTime});
+
+                                // Create a new window for our active tabs array
+                            // Close the window once we save all of them
+                            // Current Problem when we close we lose data
+                            
+                            // Bind the modalButtons
+
+                            Materialize.toast('Tabs Saved', 1000) ;
+                            $('#schedulingModal').closeModal();
+
+                            if (originalButtonId === 'saveAndClose') {
+                            chrome.windows.remove(currentWindowId);
+                            }
+                        });
+
+                        });
+                    });
+                    event.preventDefault();
+                });
+            },
             getCurrentTabs : function(){
                 $('.getCurrentTabsButton').on('click', function(event){
                     // get current window in order to close later
@@ -240,8 +305,6 @@ $(document).ready(function(){
     sendToNewPages();
     handleClickEvents();
     setInterval(utils.update, 1000);
-
-
 });
 
     
