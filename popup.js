@@ -46,6 +46,21 @@ $(document).ready(function(){
             for (var key in bindingFunctions ) {
                 bindingFunctions[key]();
             }
+        },
+        parseTimeString: function(time){
+            //time looks like 7:37 PM
+            
+            var newTime = time.split(":");
+            var hour = parseInt(newTime[0]) * timeObject.hours;
+            var minutesArray = newTime[1].split(" ");
+            var amOrPM = minutesArray[1];
+            var minutes = parseInt(minutesArray[0]) * timeObject.minutes;
+            var modifier = 0;
+            if (amOrPM == "PM") {
+                modifier = 12 * timeObject.hours;
+            }
+            var finalTime = hour + minutes + modifier;
+            return finalTime;
         }
     };
 
@@ -155,11 +170,11 @@ $(document).ready(function(){
         // })
 
         var events = {
+
             getInputtedTabs: function() {
                 // <button class="red darken-4 btn getCurrentTabsButton" id="saveAndClose">Save and Close Tabs</button>
                 $('#saveAndCloseInputted').on('click', function(event){
                     var currentWindowId;
-                    var originalButtonId = this.id;
 
                    chrome.windows.getCurrent({},function(currentWindow){
                         var activeTabsArray = [];
@@ -174,26 +189,33 @@ $(document).ready(function(){
                             // get tabs in order to save them
                             chrome.tabs.query({currentWindow: true}, function(tabs){
                                 // gotta get the appropriate data from our inputs
-                                // var dateInFuture = $('input[name=inputtedSpecificDate]').val()
+                                var dateInFuture = $('input[name=inputtedSpecificDate]').val()
+                                var parsedDate = moment(dateInFuture).unix();
+                                // parse string into unix is what I need
+                                    //
+                                // moment(dateInFutureUnix).unix();
+                                    // will give me the time since unix epoch 
+                                // Date looks like this "16 August, 2016"
                                 // console.log(dateInFuture,"What does the date in the future come out as")
-                                var timeOnThatDate = $('input[name=inputtedSpecificTime]').val()
-                                console.log(timeOnThatDate,"What does this timeOnThatDate come out as")
-
-                                var tabTime = $('input[name=activeTabsTime]').val() + Date.now() || 3000;
-
+                                var timeOnThatDate = $('#pick-a-time').val()
+                                console.log(parsedDate,"This is the parsedDate added withParsedTime should give us something good")
+                                var parsedTime = utils.parseTimeString(timeOnThatDate);
+                                console.log(parsedTime,"This is the parseTime added with parsedDate should give us something good")
+                                var finalDateTime = parsedTime + parsedDate;
+                                // Time looks like this"8:11 PM" need to parse
 
 
                                 tabs.forEach(function(tab){
                                     var tabCategory = $('input[name=activeTabCategory]').val() || 'uncategorized';
 
-                                    var currentObj = {'url': tab.url, time: tabTime, category: tabCategory, 'title': tab.title, 'periodicInterval': periodicInterval };
+                                    var currentObj = {'url': tab.url, time: finalDateTime, category: tabCategory, 'title': tab.title, 'periodicInterval': periodicInterval };
                                     activeTabsArray.push(currentObj);
                                 });
                                 // {time: time, url: url,  category: category}
                                     // add an auto fill with categories that already exist
 
                                 // Send message to our background
-                                chrome.runtime.sendMessage({"message": "new_tabs", activeTabsArray: activeTabsArray, "timing": tabTime});
+                                chrome.runtime.sendMessage({"message": "new_tabs", activeTabsArray: activeTabsArray, "timing": finalDateTime});
 
                                 // Create a new window for our active tabs array
                             // Close the window once we save all of them
@@ -203,10 +225,9 @@ $(document).ready(function(){
 
                             Materialize.toast('Tabs Saved', 1000) ;
                             $('#schedulingModal').closeModal();
-
-                            if (originalButtonId === 'saveAndClose') {
+                            
+                            // IN this case we are closing
                             chrome.windows.remove(currentWindowId);
-                            }
                         });
 
                         });
